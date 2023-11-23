@@ -20,12 +20,19 @@ export const Sidebar = () => {
     { name: 'Deals as Client', href: '/client', icon: PiHandshakeDuotone },
   ]
   const teams = [
-    { id: 1, name: 'Heroicons', href: '#', initial: 'H' },
-    { id: 2, name: 'Tailwind Labs', href: '#', initial: 'T' },
-    { id: 3, name: 'Workcation', href: '#', initial: 'W' },
+    { id: 1, name: 'Media Protocol', href: 'https://www.mediaprotocol.net', initial: 'P' },
+    { id: 2, name: 'Media Foundation', href: 'https://x.com/Media_FDN', initial: 'F' },
+    { id: 2, name: 'Github', href: 'https://github.com/mediafoundation', initial: 'G' },
   ]
   return (
     <>
+    <div className="flex h-16 shrink-0 items-center">
+      <img
+        className="h-8 w-auto"
+        src="/images/medianetworkwhite.svg"
+        alt="Media Protocol"
+      />
+    </div>
       <nav className="flex flex-1 flex-col">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>

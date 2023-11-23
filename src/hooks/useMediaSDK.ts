@@ -1,5 +1,5 @@
-
-import { initSdk, MarketplaceViewer, Marketplace, Resources, Helper } from '../../../media-sdk';
+//@ts-ignore
+import { initSdk, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk';
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
 import { latestnet } from '@utils/networks';
 import { useEffect, useState } from 'react'

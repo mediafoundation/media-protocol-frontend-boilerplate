@@ -58,13 +58,6 @@ export function DefaultLayout({children, pageProps}: any) {
                 </Transition.Child>
                 {/* Sidebar component, swap this element with another sidebar if you like */}
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-neutral-950 px-6 pb-4 ring-1 ring-white/10">
-                  <div className="flex h-16 shrink-0 items-center">
-                    <img
-                      className="h-8 w-auto"
-                      src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                      alt="Your Company"
-                    />
-                  </div>
                   <Sidebar />
                 </div>
               </Dialog.Panel>
@@ -75,20 +68,14 @@ export function DefaultLayout({children, pageProps}: any) {
 
       <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-neutral-950 px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
-            <img
-              className="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-              alt="Your Company"
-            />
-          </div>
+          
           <Sidebar />
         </div>
       </div>
 
       <div className="lg:pl-72">
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-neutral-950 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 justify-between lg:justify-end">
-          <button type="button" className="-m-2.5 p-2.5 text-neutral-700 lg:hidden" onClick={() => setSidebarOpen(true)}>
+          <button type="button" className="-m-2.5 p-2.5 text-neutral-300 lg:hidden" onClick={() => setSidebarOpen(true)}>
             <span className="sr-only">Open sidebar</span>
             <HiBars2 className="h-6 w-6" aria-hidden="true" />
           </button>
