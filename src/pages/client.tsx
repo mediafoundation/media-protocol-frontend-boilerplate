@@ -21,10 +21,16 @@ const Home: NextPage = () => {
   const wc = useWalletContext();
 
   useEffect(() => {
-    if (wc.clientDeals.length == 0 && isConnected && wc.marketplaceId) {
+    if (wc.sdkReady && wc.clientDeals.length == 0 && isConnected && wc.marketplaceId) {
       wc.fetchClientDeals()
     }
-  }, [address, isConnected, wc.marketplaceId])
+  }, [isConnected, wc.sdkReady, wc.marketplaceId])
+
+  useEffect(() => {
+    if (wc.sdkReady && wc.marketplaceId) {
+      wc.fetchClientDeals()
+    }
+  }, [address])
 
   return (
     <>

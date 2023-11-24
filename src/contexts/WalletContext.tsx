@@ -8,6 +8,7 @@ const initialState = {
   clientDeals: [],
   providerDeals: [],
   resources: [],
+  decryptedResources: [],
   marketplaceData: null,
   marketplaceId: BigInt(0),
   isRegisteredProvider: false,

@@ -20,12 +20,22 @@ const Home: NextPage = () => {
   
   const wc = useWalletContext();
 
-
   useEffect(() => {
-    if (wc.providerDeals.length == 0 && wc.isRegisteredProvider && wc.marketplaceId) {
+    if (
+      wc.sdkReady && 
+      wc.providerDeals.length == 0 && 
+      wc.isRegisteredProvider && 
+      wc.marketplaceId
+    ) {
       wc.fetchProviderDeals()
     }
-  }, [address, isConnected, wc.marketplaceId])
+  }, [isConnected, wc.sdkReady, wc.marketplaceId])
+
+  useEffect(() => {
+    if (wc.sdkReady && wc.marketplaceId) {
+      wc.fetchProviderDeals()
+    }
+  }, [address])
   
   return (
     <>
