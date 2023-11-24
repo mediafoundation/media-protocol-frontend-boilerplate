@@ -1,4 +1,8 @@
-#Media Protocol Frontend Boilerplate
+# Media Protocol Frontend Boilerplate
+
+> ⚠️ **Important Note:** The Media Protocol is not yet live into any mainnet network. It is only available in testnet networks and the contract addresses provided in the SDK are subject to change. Always refer to the official documentation for the most up-to-date and valid contract addresses before any interactions.
+
+Check the demo [here](https://media-protocol-frontend-boilerplate.vercel.app/)
 
 ## Getting Started
 
@@ -11,7 +15,6 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
 
 ## Learn More
 
