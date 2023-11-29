@@ -85,13 +85,15 @@ export function DefaultLayout({children, pageProps}: any) {
         <main className="py-10">
           <div className="px-4 sm:px-6 lg:px-8">
             {children}
-            <Link className="block text-center my-12 border rounded-xl max-w-sm p-6 text-xl" href="/">
-              {!wc.marketplaceId ? (                 
-                <>Please initialize or select a Marketplace</>
-              ) : (
-                <>Current Marketplace ID: {String(wc.marketplaceId)}</>
-              )}
-            </Link>
+            {!pageProps.isIndex && (
+              <Link className="block text-center my-12 border rounded-xl max-w-sm p-6 text-xl" href="/">
+                {!wc.marketplaceId ? (                 
+                  <>Please initialize or select a Marketplace</>
+                ) : (
+                  <>Current Marketplace ID: {String(wc.marketplaceId)}</>
+                )}
+              </Link>
+            )}
           </div>
         </main>
       </div>

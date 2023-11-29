@@ -3,6 +3,8 @@ import type { NextPage } from 'next';
 import { useAccount } from 'wagmi';
 import { useWalletContext } from '@contexts/WalletContext';
 import { useEffect } from 'react';
+import { PiSmileySadDuotone } from 'react-icons/pi';
+import Deals from '@components/Deals';
 
 declare global {
   interface BigInt {
@@ -52,15 +54,13 @@ const Home: NextPage = () => {
               <div>
                 <button 
                   onClick={wc.fetchProviderDeals}
-                  className="btn">Fetch Provider Deals
+                  className="btn">Reload
                 </button>
                 <button 
                   onClick={() => wc.resetProviderDeals()}
                   className="btn">Reset
                 </button>
-                {wc.providerDeals.map((deal:any, i:number) => {
-                  return <textarea className="w-full" key={i} defaultValue={JSON.stringify(deal)} />
-                })}
+                <Deals items={wc.providerDeals} />
               </div>
             </>
           )}

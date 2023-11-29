@@ -1,8 +1,9 @@
 //@ts-ignore
-import { initSdk, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk';
-import { createPublicClient, createWalletClient, custom, http } from 'viem';
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk';
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from '../../../media-sdk'; */
 import { latestnet } from '@utils/networks';
 import { useEffect, useState } from 'react'
+import { createWalletClient, custom } from 'viem';
 
 export function useMediaSDK(
   { 
@@ -28,11 +29,13 @@ export function useMediaSDK(
 
     if(isConnected) {
       output.provider = window.ethereum as any;
+      
       const walletClient = createWalletClient({
         account: address,
         chain: currentChain,
         transport: custom(output.provider)
       })
+
       output.walletClient = walletClient;
 
       initSdk({
@@ -46,11 +49,7 @@ export function useMediaSDK(
       });
     }
 
-    const publicClient = createPublicClient({
-      transport: http(currentChain.rpcUrls.default.http as any),
-      chain: currentChain
-    })
-    output.publicClient = publicClient;
+    output.publicClient = config().publicClient;
     output.marketplace = new Marketplace();
     output.marketplaceViewer = new MarketplaceViewer();
     output.resourcesContract = new Resources();

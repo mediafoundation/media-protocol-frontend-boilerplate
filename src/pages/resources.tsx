@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useAccount } from 'wagmi';
+import { useAccount, useNetwork } from 'wagmi';
 import { useWalletContext } from '@contexts/WalletContext';
 import { useEffect } from 'react';
 //@ts-ignore
@@ -16,24 +16,33 @@ BigInt.prototype.toJSON = function (): string {
   return this.toString();
 };
 
+export function getStaticProps() {
+  return {
+    props: {
+      title: 'Resources | Media Protocol Front-End Example',
+      isIndex: true
+    }
+  }
+}
+
 const Home: NextPage = () => {
 
   const { address, isConnected } = useAccount();
   
   const wc = useWalletContext();
-
+  
 
   useEffect(() => {
     if (wc.sdkReady && wc.resources.length == 0 && isConnected) {
       wc.fetchResources()
     }
-  }, [isConnected, wc.sdkReady])
+  }, [address, isConnected, wc.sdkReady])
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (wc.sdkReady) {
       wc.fetchResources()
     }
-  }, [address])
+  }, [address]) */
 
   return (
     <>

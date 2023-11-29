@@ -1,19 +1,20 @@
 import { useContext, createContext, ReactNode, useEffect } from "react";
 import { InitializeContext } from "@contexts/Contextor";
-import { useAccount, useNetwork } from 'wagmi';
-import { useMediaSDK } from '@hooks/useMediaSDK';
+import { useAccount, useNetwork } from "wagmi";
+import { useMediaSDK } from "@hooks/useMediaSDK";
 
 const initialState = {
   offers: [],
   clientDeals: [],
   providerDeals: [],
   resources: [],
-  decryptedResources: [],
+  decryptedResources: {},
   marketplaceData: null,
   marketplaceId: BigInt(0),
   isRegisteredProvider: false,
   encryptionPublicKey: null,
   sdkReady: false,
+  currentChain: null,
 };
 
 export const Context = createContext(null);
@@ -24,71 +25,109 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const { state, dispatchers } = InitializeContext(initialState);
 
   const { address, isConnected } = useAccount();
-  
+
   const { chain } = useNetwork();
 
   const sdk = useMediaSDK({ address, isConnected, chain });
 
-  if(sdk && !state.sdkReady){
+  if (sdk && !state.sdkReady) {
     dispatchers.setSdkReady(true);
   }
 
   let functions = {
     fetchOffers: async () => {
-      const result: any = await sdk.marketplaceViewer.getAllOffersPaginating(state.marketplaceId);
+      const result: any = await sdk.marketplaceViewer.getAllOffersPaginating({
+        marketPlaceId: state.marketplaceId,
+      });
       dispatchers.setOffers(result);
     },
     initMarket: async () => {
-      const hash = await sdk.marketplace.initializeMarketplace(100, address, 5);
-      const transaction = await sdk.publicClient.waitForTransactionReceipt( 
-        { hash: hash }
-      )
+      const hash = await sdk.marketplace.initializeMarketplace({
+        requiredStake: 100,
+        marketFeeTo: address,
+        marketFeeRate: 5,
+      });
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
       dispatchers.setMarketplaceId(BigInt(transaction.logs[0].topics[1]));
     },
     fetchResources: async () => {
-      const result: any = await sdk.resourcesContract.getPaginatedResources(address);
+      const result: any = await sdk.resourcesContract.getPaginatedResources({
+        address: address,
+      });
       dispatchers.setResources(result[0]);
     },
     fetchProviderDeals: async () => {
-      const result: any = await sdk.marketplaceViewer.getAllDealsPaginating(state.marketplaceId, address, true);
+      const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
+        marketPlaceId: state.marketplaceId,
+        address: address,
+        isProvider: true,
+      });
       dispatchers.setProviderDeals(result);
     },
     fetchClientDeals: async () => {
-      const result: any = await sdk.marketplaceViewer.getAllDealsPaginating(state.marketplaceId, address, false);
+      const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
+        marketPlaceId: state.marketplaceId,
+        address: address,
+        isProvider: false,
+      });
       dispatchers.setClientDeals(result);
     },
     getMarketplaceData: async () => {
       //const result: any = await resources.view("getResources", [address]);
-      const marketFeeTo: any = await sdk.marketplace.view("getMarketFeeTo", [state.marketplaceId])
-      const marketFeeRate: any = await sdk.marketplace.view("getMarketFeeRate", [state.marketplaceId])
-      const requiredStake: any = await sdk.marketplace.view("getRequiredStake", [state.marketplaceId])
-      const dealCount: any = await sdk.marketplace.view("dealCounter", [state.marketplaceId])
+      const marketFeeTo: any = await sdk.marketplace.view("getMarketFeeTo", [
+        state.marketplaceId,
+      ]);
+      const marketFeeRate: any = await sdk.marketplace.view(
+        "getMarketFeeRate",
+        [state.marketplaceId]
+      );
+      const requiredStake: any = await sdk.marketplace.view(
+        "getRequiredStake",
+        [state.marketplaceId]
+      );
+      const dealCount: any = await sdk.marketplace.view("dealCounter", [
+        state.marketplaceId,
+      ]);
       const object = {
         marketFeeTo,
         marketFeeRate,
         requiredStake,
-        dealCount
-      }
+        dealCount,
+      };
       console.log(object);
       dispatchers.setMarketplaceData(object);
     },
     createOffer: async (
-        maximumDeals: string, 
-        autoAccept: boolean, 
-        pricePerSecond: string,
-        minDealDuration: string,
-        billFullPeriods: boolean,
-        singlePeriodOnly: boolean,
-        metadata: string
-      ) => {
-      const hash = await sdk.marketplace.createOffer(state.marketplaceId, maximumDeals, autoAccept, pricePerSecond, minDealDuration, billFullPeriods, singlePeriodOnly, metadata);
-      const transaction = await sdk.publicClient.waitForTransactionReceipt( 
-        { hash: hash }
-      )
+      maximumDeals: string,
+      autoAccept: boolean,
+      pricePerSecond: string,
+      minDealDuration: string,
+      billFullPeriods: boolean,
+      singlePeriodOnly: boolean,
+      metadata: string
+    ) => {
+      const hash = await sdk.marketplace.createOffer({
+        marketPlaceId: state.marketplaceId,
+        maximumDeals,
+        autoAccept,
+        pricePerSecond,
+        minDealDuration,
+        billFullPeriods,
+        singlePeriodOnly,
+        metadata
+      });
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
       console.log(transaction);
     },
     getRegistrationStatus: async (address: any) => {
-      const result: any = await sdk.marketplace.view("isRegisteredProvider", [state.marketplaceId, address]);
+      const result: any = await sdk.marketplace.view("isRegisteredProvider", [
+        state.marketplaceId,
+        address,
+      ]);
       dispatchers.setIsRegisteredProvider(result);
     },
     getEncryptionPublicKey: async () => {
@@ -98,7 +137,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       });
       dispatchers.setEncryptionPublicKey(_encryptionPublicKey);
     },
-/*     
+    /*     
 solidity function
 
 function addLiquidityAndRegisterWithETH(
@@ -116,19 +155,42 @@ function addLiquidityAndRegisterWithETH(
   } */
     registerProvider: async (label: string) => {
       const hash = await sdk.helper.execute(
-        "addLiquidityAndRegisterWithETH", 
-        [state.marketplaceId, label, state.encryptionPublicKey], 
+        "addLiquidityAndRegisterWithETH",
+        [state.marketplaceId, label, state.encryptionPublicKey],
         100
       );
-      const transaction = await sdk.publicClient.waitForTransactionReceipt( 
-        { hash: hash }
-      )
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
       console.log(transaction);
-    }
-  }
+    },
+    unregisterProvider: async () => {
+      const hash = await sdk.helper.execute(
+        "unregisterRemoveLiquidityAndSwap",
+        [state.marketplaceId, 0, 0]
+      );
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
+      console.log(transaction);
+    },
+    cancelDeal: async (id: bigint) => {
+      const hash = await sdk.marketplace.cancelDeal({
+        marketPlaceId: state.marketplaceId,
+        dealId: id,
+      });
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
+      console.log(transaction);
+    },
+  };
 
   useEffect(() => {
-    dispatchers.resetInitialState()
+    if (chain && state.currentChain !== chain.id) {
+      dispatchers.resetInitialState();
+      dispatchers.setCurrentChain(chain.id);
+    }
   }, [chain]);
 
   useEffect(() => {
@@ -136,16 +198,19 @@ function addLiquidityAndRegisterWithETH(
     dispatchers.resetOffers();
     dispatchers.resetProviderDeals();
     dispatchers.resetClientDeals();
-    if(state.marketplaceId){
-      functions.getRegistrationStatus(address);
-      functions.getMarketplaceData()
+    if (state.marketplaceId) {
+      functions.getMarketplaceData();
+      if (address) {
+        functions.getRegistrationStatus(address);
+      }
     }
   }, [state.marketplaceId]);
 
   return (
-    <Context.Provider value={{ ...state, ...dispatchers, ...functions, ...sdk  }}>
+    <Context.Provider
+      value={{ ...state, ...dispatchers, ...functions, ...sdk }}
+    >
       {children}
     </Context.Provider>
   );
 };
-

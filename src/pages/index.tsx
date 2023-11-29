@@ -2,13 +2,12 @@
 import type { NextPage } from 'next';
 import { useAccount } from 'wagmi';
 import { useWalletContext } from '@contexts/WalletContext';
-import { useEffect } from 'react';
 
 export function getStaticProps() {
   return {
     props: {
       title: 'Media Protocol Front-End Example',
-      isHome: true
+      isIndex: true
     }
   }
 }
