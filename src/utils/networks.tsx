@@ -1,7 +1,7 @@
 import { Chain } from "wagmi";
 
 export const ganache = {
-  id: 222,
+  id: 5,
   name: "Ganache",
   network: "Ganache",
   iconUrl: "/images/ganache.svg",

@@ -1,9 +1,12 @@
 //@ts-ignore
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk';
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from '../../../media-sdk'; */
-import { latestnet } from '@utils/networks';
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk'; */
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, validChains } from '../../../media-sdk';
+import { ganache } from '@utils/networks';
+import { goerli } from "wagmi/chains";
 import { useEffect, useState } from 'react'
 import { createWalletClient, custom } from 'viem';
+
+//import useRacedEffect from "@hooks/useRacedEffect";
 
 export function useMediaSDK(
   { 
@@ -20,12 +23,16 @@ export function useMediaSDK(
       publicClient: null as any,
       marketplace: null as any,
       marketplaceViewer: null as any,
+      marketplaceHelper: null as any,
       resourcesContract: null as any,
-      helper: null as any,
       provider: null as any
     };
-
-    let currentChain = chain || latestnet as any;
+    let currentChain;
+    if(chain && validChains.hasOwnProperty(chain.id)) {
+      currentChain = chain;
+    } else {
+      console.log('invalid chain');
+    }
 
     if(isConnected) {
       output.provider = window.ethereum as any;
@@ -39,21 +46,21 @@ export function useMediaSDK(
       output.walletClient = walletClient;
 
       initSdk({
-        chain: chain as any,
+        chain: currentChain,
         walletClient: walletClient as any
       });
 
     } else {
       initSdk({
-        chain: currentChain,
+        chain: currentChain
       });
     }
 
     output.publicClient = config().publicClient;
     output.marketplace = new Marketplace();
     output.marketplaceViewer = new MarketplaceViewer();
+    output.marketplaceHelper = new MarketplaceHelper();
     output.resourcesContract = new Resources();
-    output.helper = new Helper();
 
     setData(output);
   // eslint-disable-next-line react-hooks/exhaustive-deps

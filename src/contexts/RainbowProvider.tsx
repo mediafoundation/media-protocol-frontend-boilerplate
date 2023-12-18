@@ -7,8 +7,7 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { publicProvider } from 'wagmi/providers/public';
-import { baseGoerli, goerli } from "wagmi/chains";
-import { latestnet } from "@utils/networks";
+import { goerli, baseGoerli } from "wagmi/chains";
 import { useIsMounted } from "@hooks/useIsMounted";
 import { 
   injectedWallet,
@@ -22,7 +21,7 @@ import useCurrentTheme from "@hooks/useCurrentTheme";
 import { useRouter } from "next/router";
 import { ReactNode } from 'react';
 
-const chains = [latestnet, baseGoerli, goerli ];
+const chains = [ goerli, baseGoerli ];
 
 const projectId = "2b592927eaad05eff4242d53ee9642f2";
 

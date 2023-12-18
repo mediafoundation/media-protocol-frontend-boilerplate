@@ -41,7 +41,7 @@ const Home: NextPage = () => {
   
   return (
     <>
-      <h1 className="text-3xl font-bold">
+      <h1>
         Deals as Provider
       </h1>
       <p>

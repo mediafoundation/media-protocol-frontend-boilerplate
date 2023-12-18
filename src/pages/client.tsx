@@ -5,16 +5,6 @@ import { useWalletContext } from '@contexts/WalletContext';
 import { useEffect } from 'react';
 import Deals from '@components/Deals';
 
-declare global {
-  interface BigInt {
-    toJSON(): string;
-  }
-}
-
-BigInt.prototype.toJSON = function (): string {
-  return this.toString();
-};
-
 const Home: NextPage = () => {
 
   const { address, isConnected } = useAccount();
@@ -35,7 +25,7 @@ const Home: NextPage = () => {
 
   return (
     <>
-      <h1 className="text-3xl font-bold">
+      <h1>
         Deals as Client
       </h1>
       <p>

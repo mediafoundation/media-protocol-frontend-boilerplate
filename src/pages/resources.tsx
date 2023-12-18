@@ -33,23 +33,20 @@ const Home: NextPage = () => {
   
 
   useEffect(() => {
-    if (wc.sdkReady && wc.resources.length == 0 && isConnected) {
+    if (
+      wc.sdkReady && isConnected
+      && wc.resources && wc.resources.length == 0
+    ) {
       wc.fetchResources()
     }
   }, [address, isConnected, wc.sdkReady])
 
-/*   useEffect(() => {
-    if (wc.sdkReady) {
-      wc.fetchResources()
-    }
-  }, [address]) */
-
   return (
     <>
-      <h1 className="text-3xl font-bold">
+      <h1>
         Resources
       </h1>
-      <p>
+      <p className='textMuted'>
       A Resource in Media Protocol refers to a JSON-encrypted object stored on the blockchain. The purpose of this object is to store private user information, such as email, name, and address. The encrypted information can only be decrypted using the user&#39;s private key. The user can share this information with a provider, who can then decrypt it and use it to deliver services. Here, you will find the list of resources you own and those shared with you.
       </p>
       {isConnected && (
@@ -62,10 +59,11 @@ const Home: NextPage = () => {
             onClick={wc.resetResources}
             className="btn">Reset
           </button>
-          {wc.resources.map((res:any, i:number) => {
+          {wc.resources && wc.resources.length > 0 ?
+           wc.resources.map((res:any, i:number) => {
             return (
               <ul key={i}>
-                <li className='border border-neutral-800 rounded-xl px-6 py-4 my-2'>
+                <li className='border border-dark-1500 rounded-xl px-6 py-4 my-2'>
                   <div className='flex items-center justify-between'>
                     <span className="text-xl leading-9">#{String(res.id)} - {getShortName(res.owner,true,6)}</span>
                     {!wc.decryptedResources[res.id] && (
@@ -94,7 +92,7 @@ const Home: NextPage = () => {
                   </div>
 
                   {wc.decryptedResources[res.id] && (
-                    <ul className='border-t border-t-neutral-800 mt-2 pt-2'>
+                    <ul className='border-t border-t-dark-1500 mt-2 pt-2'>
                       {Object.entries(wc.decryptedResources[res.id]).map(([key, value]) => (
                         <li key={key}>
                           {key}: {JSON.stringify(value)}
@@ -105,7 +103,9 @@ const Home: NextPage = () => {
                 </li>
             </ul> 
             )
-          })}
+          }) : (
+            <p>No resources found</p>
+          )}
         </div>
       )}
     

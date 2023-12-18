@@ -3,6 +3,11 @@ import { InitializeContext } from "@contexts/Contextor";
 import { useAccount, useNetwork } from "wagmi";
 import { useMediaSDK } from "@hooks/useMediaSDK";
 
+//@ts-ignore
+/* import { Uniswap } from 'media-sdk'; */
+import { Uniswap } from '../../../media-sdk';
+
+
 const initialState = {
   offers: [],
   clientDeals: [],
@@ -37,7 +42,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   let functions = {
     fetchOffers: async () => {
       const result: any = await sdk.marketplaceViewer.getAllOffersPaginating({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
       });
       dispatchers.setOffers(result);
     },
@@ -45,7 +50,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       const hash = await sdk.marketplace.initializeMarketplace({
         requiredStake: 100,
         marketFeeTo: address,
-        marketFeeRate: 5,
+        marketFeeRate: 500,
       });
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
@@ -60,7 +65,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     fetchProviderDeals: async () => {
       const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         address: address,
         isProvider: true,
       });
@@ -68,7 +73,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     fetchClientDeals: async () => {
       const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         address: address,
         isProvider: false,
       });
@@ -87,7 +92,10 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         "getRequiredStake",
         [state.marketplaceId]
       );
-      const dealCount: any = await sdk.marketplace.view("dealCounter", [
+      const dealCount: any = await sdk.marketplace.view("dealAutoIncrement", [
+        state.marketplaceId,
+      ]);
+      const offerCount: any = await sdk.marketplace.view("offerAutoIncrement", [
         state.marketplaceId,
       ]);
       const object = {
@@ -95,6 +103,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         marketFeeRate,
         requiredStake,
         dealCount,
+        offerCount
       };
       console.log(object);
       dispatchers.setMarketplaceData(object);
@@ -109,7 +118,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       metadata: string
     ) => {
       const hash = await sdk.marketplace.createOffer({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         maximumDeals,
         autoAccept,
         pricePerSecond,
@@ -137,35 +146,24 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       });
       dispatchers.setEncryptionPublicKey(_encryptionPublicKey);
     },
-    /*     
-solidity function
-
-function addLiquidityAndRegisterWithETH(
-      uint256 marketplaceId,
-      string memory label,
-      string memory publicKey
-    ) external payable nonReentrant returns (uint256 lpTokens){
-      // Wrap raw ETH to WETH
-      IWETH weth = IWETH(router.WETH());
-      weth.deposit{value: msg.value}();
-      IERC20 _weth = IERC20(router.WETH());
-
-      (uint256 mediaAmount, uint256 wethAmount) = handleTokenSwap(_weth, msg.value);
-      return handleRegister(marketplaceId, mediaAmount, wethAmount, label, publicKey);
-  } */
+  
     registerProvider: async (label: string) => {
-      const hash = await sdk.helper.execute(
-        "addLiquidityAndRegisterWithETH",
-        [state.marketplaceId, label, state.encryptionPublicKey],
-        100
-      );
+      const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
+        marketplaceId: state.marketplaceId,
+        label,
+        publicKey: state.encryptionPublicKey,
+        minMediaAmountOut: 0,
+        slippage: 5000,
+        amount: 25e16.toString()
+      });
+    
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
       });
       console.log(transaction);
     },
     unregisterProvider: async () => {
-      const hash = await sdk.helper.execute(
+      const hash = await sdk.marketplaceHelper.execute(
         "unregisterRemoveLiquidityAndSwap",
         [state.marketplaceId, 0, 0]
       );
@@ -176,7 +174,7 @@ function addLiquidityAndRegisterWithETH(
     },
     cancelDeal: async (id: bigint) => {
       const hash = await sdk.marketplace.cancelDeal({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         dealId: id,
       });
       const transaction = await sdk.publicClient.waitForTransactionReceipt({

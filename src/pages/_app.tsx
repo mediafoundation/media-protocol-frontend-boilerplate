@@ -1,5 +1,6 @@
 import '../styles/global.css';
 import '@rainbow-me/rainbowkit/styles.css';
+import { Inter } from 'next/font/google'
 
 import { ThemeProvider } from "next-themes";
 import type { AppProps } from 'next/app';
@@ -15,6 +16,8 @@ const providers = [
   WalletProvider
 ];
 
+const inter = Inter({ subsets: ['latin'] })
+
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider enableSystem={true} attribute="class">
@@ -25,7 +28,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <ContextProvider providers={providers}>
         <DefaultLayout pageProps={pageProps}>
-          <Component {...pageProps} />
+          <div className={inter.className}>
+            <Component {...pageProps} />
+          </div>
         </DefaultLayout>
       </ContextProvider>
     </ThemeProvider>
