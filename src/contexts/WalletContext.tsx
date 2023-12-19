@@ -182,6 +182,17 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       });
       console.log(transaction);
     },
+    addResource: async (metadata: string) => {
+      const hash = await sdk.resourcesContract.addResource({
+        encryptedData: metadata,      
+        sharedKeyCopy: "",
+        ownerKeys: "",
+      });
+      const transaction = await sdk.publicClient.waitForTransactionReceipt({
+        hash: hash,
+      });
+      console.log(transaction);
+    },
   };
 
   useEffect(() => {

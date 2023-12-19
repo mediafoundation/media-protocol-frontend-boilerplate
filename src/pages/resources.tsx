@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 //@ts-ignore
 import { Encryption } from 'media-sdk';
 import { getShortName } from '@utils/utils';
+import CreateResource from '@components/CreateResource';
 
 declare global {
   interface BigInt {
@@ -51,14 +52,16 @@ const Home: NextPage = () => {
       </p>
       {isConnected && (
         <div>
-          <button 
-            onClick={wc.fetchResources}
-            className="btn">Reload
-          </button>
-          <button 
-            onClick={wc.resetResources}
-            className="btn">Reset
-          </button>
+          <div className='flex gap-2'>
+            <button 
+              onClick={wc.fetchResources}
+              className="btn">Reload
+            </button>
+            <button 
+              onClick={wc.resetResources}
+              className="btn">Reset
+            </button>
+          </div>
           {wc.resources && wc.resources.length > 0 ?
            wc.resources.map((res:any, i:number) => {
             return (
@@ -66,29 +69,47 @@ const Home: NextPage = () => {
                 <li className='border border-dark-1500 rounded-xl px-6 py-4 my-2'>
                   <div className='flex items-center justify-between'>
                     <span className="text-xl leading-9">#{String(res.id)} - {getShortName(res.owner,true,6)}</span>
-                    {!wc.decryptedResources[res.id] && (
-                      <button 
+                    <div className='flex gap-2'>
+                      {!wc.decryptedResources[res.id] && (
+                        <button 
+                          onClick={async() => {
+                            console.log(wc)
+                            const decryptedKey = await wc.provider.request({
+                              method: "eth_decrypt",
+                              params: [res.encryptedSharedKey, address],
+                            });
+                            console.log("decryptedKey",decryptedKey)
+                            let attrs = JSON.parse(res.encryptedData);
+                            let decryptedData = await Encryption.decrypt(
+                              decryptedKey,
+                              attrs.iv,
+                              attrs.tag,
+                              attrs.encryptedData
+                            );
+                            let data = JSON.parse(decryptedData);
+                            wc.setDecryptedResources({...wc.decryptedResources, [res.id]: data})
+                            console.log(data)
+                          }}
+                          className="btn !m-0">Decrypt
+                        </button>
+                      )}
+                      <button
+                        className="btn !m-0"
                         onClick={async() => {
-                          console.log(wc)
-                          const decryptedKey = await wc.provider.request({
-                            method: "eth_decrypt",
-                            params: [res.encryptedSharedKey, address],
+                          const hash = await wc.resourcesContract.removeResource({
+                            id: res.id,
+                            ownerKeys: "",
                           });
-                          console.log("decryptedKey",decryptedKey)
-                          let attrs = JSON.parse(res.encryptedData);
-                          let decryptedData = await Encryption.decrypt(
-                            decryptedKey,
-                            attrs.iv,
-                            attrs.tag,
-                            attrs.encryptedData
-                          );
-                          let data = JSON.parse(decryptedData);
-                          wc.setDecryptedResources({...wc.decryptedResources, [res.id]: data})
-                          console.log(data)
+                          const transaction = await wc.publicClient.waitForTransactionReceipt({
+                            hash: hash,
+                          });
+                          console.log(transaction);
+                          wc.fetchResources();
                         }}
-                        className="btn !m-0">Decrypt
+                      >
+                        Delete
                       </button>
-                    )}
+                    </div>
                   </div>
 
                   {wc.decryptedResources[res.id] && (
@@ -106,6 +127,8 @@ const Home: NextPage = () => {
           }) : (
             <p>No resources found</p>
           )}
+          <hr className="border-dark-1500 mb-6"/>
+          <CreateResource />
         </div>
       )}
     

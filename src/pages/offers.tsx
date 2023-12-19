@@ -123,7 +123,7 @@ const Home: NextPage = () => {
             {isConnected && (
               <>
                 <hr className="border-dark-1500 my-6" />
-                <h3 className="text-2xl font-bold">Create Offer</h3>
+                <h1>Create Offer</h1>
                 {wc.isRegisteredProvider ? (
                   <>
                     <CreateOffer />

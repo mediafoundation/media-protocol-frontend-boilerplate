@@ -73,8 +73,8 @@ export function DefaultLayout({children, pageProps}: any) {
         </div>
       </div>
 
-      <div className="lg:pl-72">
-        <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4  px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8 justify-between lg:justify-end">
+      <div className="px-2 lg:px-4 lg:pl-72 ">
+        <div className="flex h-16 shrink-0 items-center gap-x-4  shadow-sm sm:gap-x-6 justify-between lg:justify-end">
           <button type="button" className="-m-2.5 p-2.5 text-dark-300 lg:hidden" onClick={() => setSidebarOpen(true)}>
             <span className="sr-only">Open sidebar</span>
             <HiBars2 className="h-6 w-6" aria-hidden="true" />
@@ -82,8 +82,8 @@ export function DefaultLayout({children, pageProps}: any) {
           <ConnectButton />
         </div>
 
-        <main className="rounded-xl bg-dark-1700 border border-dark-1500 mr-2 lg:mr-4">
-          <div className="p-4 sm:p-6 lg:p-6">
+        <main className="rounded-xl bg-dark-1700 border border-dark-1500">
+          <div className="p-6">
             {children}
             {!pageProps.isIndex && (
               <Link className="block text-center my-12 border rounded-xl max-w-sm p-6 text-xl" href="/">
