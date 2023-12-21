@@ -150,22 +150,22 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
   
     registerProvider: async (label: string) => {
-/*       const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
+      const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
         marketplaceId: state.marketplaceId,
         label,
         publicKey: state.encryptionPublicKey,
         minMediaAmountOut: 0,
         slippage: 5000,
         amount: 25e16.toString()
-      });     */  
-      const hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
+      });      
+/*       const hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
         marketplaceId: state.marketplaceId,
         inputToken: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
         inputAmount: BigInt(2e18.toString()),
         label,
         publicKey: state.encryptionPublicKey,
         slippage: 5000,
-      });
+      }); */
     
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
