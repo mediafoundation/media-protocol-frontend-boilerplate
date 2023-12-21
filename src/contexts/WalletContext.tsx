@@ -1,12 +1,14 @@
 import { useContext, createContext, ReactNode, useEffect } from "react";
 import { InitializeContext } from "@contexts/Contextor";
-import { useAccount, useNetwork } from "wagmi";
+import { Address, useAccount, useNetwork } from "wagmi";
 import { useMediaSDK } from "@hooks/useMediaSDK";
 
 //@ts-ignore
 /* import { Uniswap } from 'media-sdk'; */
 import { Uniswap } from '../../../media-sdk';
+import { useApproval } from "@hooks/useApproval";
 
+const MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
 
 const initialState = {
   offers: [],
@@ -148,13 +150,21 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
   
     registerProvider: async (label: string) => {
-      const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
+/*       const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
         marketplaceId: state.marketplaceId,
         label,
         publicKey: state.encryptionPublicKey,
         minMediaAmountOut: 0,
         slippage: 5000,
         amount: 25e16.toString()
+      });     */  
+      const hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
+        marketplaceId: state.marketplaceId,
+        inputToken: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+        inputAmount: BigInt(2e18.toString()),
+        label,
+        publicKey: state.encryptionPublicKey,
+        slippage: 5000,
       });
     
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
@@ -164,7 +174,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     unregisterProvider: async () => {
       const hash = await sdk.marketplaceHelper.execute(
-        "unregisterRemoveLiquidityAndSwap",
+        "unregisterRemoveLiquidity",
         [state.marketplaceId, 0, 0]
       );
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
@@ -193,6 +203,47 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       });
       console.log(transaction);
     },
+    approveToken: async (tokenAddress: Address, spenderAddress: Address, amount: bigint) => {
+
+
+    },
+//     fetchTokenInfo: async (token: any, walletAddress: any) => {
+// /*       let provider: any = await detectEthereumProvider();
+//       provider = new providers.Web3Provider(provider); */
+//       let contract;
+//       let balance = BigInt(0);
+//       let allowance = BigInt(0);
+//       //if address is _ we assume is the native coin (ETH) and not an ERC20 Token
+//       if (token.address == "_") {
+//         balance = await sdk.publicClient.getBalance({ 
+//           address: walletAddress || sdk.publicClient.address,
+//         });
+//         allowance = BigInt(MAX_INT);
+//       } else {
+//         contract = new ethers.Contract(
+//           token.address,
+//           MediaERC20.abi,
+//           provider.getSigner()
+//         );
+//         try {
+//           balance = await contract.balanceOf(walletAddress);
+//           console.log("balance", balance.toString());
+//           allowance = await contract.allowance(
+//             walletAddress,
+//             ProviderHelper.networks[provider.network.chainId].address
+//           );
+//           console.log("allowance", allowance);
+//         } catch (error) {
+//           console.error("Error fetching token data:", error);
+//         }
+//       }
+//       return {
+//         balance: balance,
+//         allowance: allowance,
+//         contract: contract,
+//       };
+//     }
+
   };
 
   useEffect(() => {

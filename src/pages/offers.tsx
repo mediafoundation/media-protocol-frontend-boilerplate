@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import { getShortName } from "@utils/utils";
 import { useAccount } from "wagmi";
 
-import { Uniswap } from "../../../media-sdk";
 import CreateOffer from "@components/CreateOffer";
+import { useApproval } from "@hooks/useApproval";
 
 declare global {
   interface BigInt {
@@ -18,20 +18,6 @@ BigInt.prototype.toJSON = function (): string {
 };
 
 const Home: NextPage = () => {
-  /* let path = Uniswap.encodePath(
-    [
-      "0x6b175474e89094c44da98b954eedeac495271d0f",
-      "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-    ],
-    [500]
-  );
-  console.log("path", path);
-
-  let decodedPath = Uniswap.decodePath(path);
-  console.log("decodedPath", decodedPath);
-
-  let sqrtX96 = Uniswap.calculateSqrtPriceX96("185", "1");
-  console.log(sqrtX96.toFixed(0)); */
 
   const { isConnected } = useAccount();
 
@@ -43,8 +29,16 @@ const Home: NextPage = () => {
     }
   }, [wc.marketplaceId]);
 
+  const approval = useApproval(
+    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+    "0xC32B92D89A88e7f6B236F2024de68b1c0A6e45a4",
+    BigInt((2e18).toString())
+  );
+
+
   return (
     <>
+
       <div className="">
         <h1>Offers</h1>
         <p>
@@ -75,49 +69,46 @@ const Home: NextPage = () => {
                   <th>Metadata</th>
                   {isConnected && <th>Actions</th>}
                 </tr>
-                {wc.offers.map((offer: any, i: number) => {
-                  console.log(offer);
-                  return (
-                    <tr key={i}>
-                      <td>{String(offer.id)}</td>
-                      <td>{getShortName(offer.provider, true)}</td>
-                      <td>{String(offer.maximumDeals)}</td>
-                      <td>{offer.autoAccept.toString()}</td>
-                      <td>{String(offer.terms.pricePerSecond)}</td>
-                      <td>{String(offer.terms.minDealDuration)}</td>
-                      <td>{offer.terms.billFullPeriods.toString()}</td>
-                      <td>{offer.terms.singlePeriodOnly.toString()}</td>
-                      <td title={offer.publicKey}>
-                        {offer.publicKey.slice(0, 5)}...
-                      </td>
+                {wc.offers.map((offer: any, i: number) => (
+                  <tr key={i}>
+                    <td>{String(offer.id)}</td>
+                    <td>{getShortName(offer.provider, true)}</td>
+                    <td>{String(offer.maximumDeals)}</td>
+                    <td>{offer.autoAccept.toString()}</td>
+                    <td>{String(offer.terms.pricePerSecond)}</td>
+                    <td>{String(offer.terms.minDealDuration)}</td>
+                    <td>{offer.terms.billFullPeriods.toString()}</td>
+                    <td>{offer.terms.singlePeriodOnly.toString()}</td>
+                    <td title={offer.publicKey}>
+                      {offer.publicKey.slice(0, 5)}...
+                    </td>
+                    <td>
+                      <textarea
+                        className="w-full"
+                        defaultValue={offer.metadata}
+                      />
+                    </td>
+                    {isConnected && (
                       <td>
-                        <textarea
-                          className="w-full"
-                          defaultValue={offer.metadata}
-                        />
+                        <button
+                          onClick={() => {
+                            wc.marketplaceHelper.swapAndCreateDealWithETH({
+                              marketplaceId: wc.marketplaceId,
+                              resourceId: 0,
+                              offerId: offer.id,
+                              sharedKeyCopy: "null",
+                              minMediaAmountOut: 0,
+                              amount: (25e14).toString(),
+                            });
+                          }}
+                          className="btn"
+                        >
+                          Take Offer
+                        </button>
                       </td>
-                      {isConnected && (
-                        <td>
-                          <button
-                            onClick={() => {
-                              wc.marketplaceHelper.swapAndCreateDealWithETH({
-                                marketplaceId: wc.marketplaceId,
-                                resourceId: 0,
-                                offerId: offer.id,
-                                sharedKeyCopy: "null",
-                                minMediaAmountOut: 0,
-                                amount: 25e14.toString(),
-                              });
-                            }}
-                            className="btn"
-                          >
-                            Take Offer
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  );
-                })}
+                    )}
+                  </tr>
+                ))}
               </table>
             </div>
             {isConnected && (
@@ -150,10 +141,16 @@ const Home: NextPage = () => {
                     ) : (
                       <>
                         <button
+                          onClick={() => approval?.approve?.()}
+                          className="btn"
+                        >
+                          #2 - Approve Token
+                        </button>
+                        <button
                           onClick={() => wc.registerProvider("Provider Label")}
                           className="btn"
                         >
-                          #2 - Register Provider
+                          #3 - Register Provider
                         </button>
                         Public Encryption Key:{" "}
                         <input

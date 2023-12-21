@@ -1,6 +1,6 @@
 //@ts-ignore
 /* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk'; */
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, validChains } from '../../../media-sdk';
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk';
 import { ganache } from '@utils/networks';
 import { goerli } from "wagmi/chains";
 import { useEffect, useState } from 'react'
@@ -25,7 +25,8 @@ export function useMediaSDK(
       marketplaceViewer: null as any,
       marketplaceHelper: null as any,
       resourcesContract: null as any,
-      provider: null as any
+      provider: null as any,
+      quoter: null as any
     };
     let currentChain;
     if(chain && validChains.hasOwnProperty(chain.id)) {
@@ -61,6 +62,7 @@ export function useMediaSDK(
     output.marketplaceViewer = new MarketplaceViewer();
     output.marketplaceHelper = new MarketplaceHelper();
     output.resourcesContract = new Resources();
+    output.quoter = new Quoter();
 
     setData(output);
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -18,6 +18,7 @@ export const Sidebar = () => {
     { name: 'My Resources', href: '/resources', icon: PiStackDuotone },
     { name: 'Deals as Provider', href: '/provider', icon: PiHandshakeDuotone },
     { name: 'Deals as Client', href: '/client', icon: PiHandshakeDuotone },
+    { name: 'Quote', href: '/quote', icon: PiHandshakeDuotone },
   ]
   const links = [
     { id: 1, name: 'Media Protocol', href: 'https://www.mediaprotocol.net', initial: 'P' },
