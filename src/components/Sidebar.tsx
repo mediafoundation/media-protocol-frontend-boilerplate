@@ -1,5 +1,5 @@
 
-import { PiHouseDuotone, PiHandshakeDuotone, PiStackDuotone, PiShoppingCartDuotone } from "react-icons/pi";
+import { PiHouseDuotone, PiHandshakeDuotone, PiStackDuotone, PiShoppingCartDuotone, PiSwapDuotone } from "react-icons/pi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -18,7 +18,7 @@ export const Sidebar = () => {
     { name: 'My Resources', href: '/resources', icon: PiStackDuotone },
     { name: 'Deals as Provider', href: '/provider', icon: PiHandshakeDuotone },
     { name: 'Deals as Client', href: '/client', icon: PiHandshakeDuotone },
-    { name: 'Quote', href: '/quote', icon: PiHandshakeDuotone },
+    { name: 'Quote', href: '/quote', icon: PiSwapDuotone },
   ]
   const links = [
     { id: 1, name: 'Media Protocol', href: 'https://www.mediaprotocol.net', initial: 'P' },

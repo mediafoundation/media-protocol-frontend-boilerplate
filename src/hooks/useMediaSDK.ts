@@ -1,6 +1,6 @@
 //@ts-ignore
 /* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk'; */
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk';
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains, Pool } from '../../../media-sdk';
 import { ganache } from '@utils/networks';
 import { goerli } from "wagmi/chains";
 import { useEffect, useState } from 'react'
@@ -26,7 +26,8 @@ export function useMediaSDK(
       marketplaceHelper: null as any,
       resourcesContract: null as any,
       provider: null as any,
-      quoter: null as any
+      quoter: null as any,
+      pool: null as any
     };
     let currentChain;
     if(chain && validChains.hasOwnProperty(chain.id)) {
@@ -47,14 +48,12 @@ export function useMediaSDK(
       output.walletClient = walletClient;
 
       initSdk({
-        chain: currentChain,
         walletClient: walletClient as any
       });
 
     } else {
-      initSdk({
-        chain: currentChain
-      });
+      console.log('not connected', currentChain);
+      initSdk();
     }
 
     output.publicClient = config().publicClient;
@@ -63,6 +62,7 @@ export function useMediaSDK(
     output.marketplaceHelper = new MarketplaceHelper();
     output.resourcesContract = new Resources();
     output.quoter = new Quoter();
+    output.pool = new Pool();
 
     setData(output);
   // eslint-disable-next-line react-hooks/exhaustive-deps

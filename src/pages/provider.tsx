@@ -3,7 +3,6 @@ import type { NextPage } from 'next';
 import { useAccount } from 'wagmi';
 import { useWalletContext } from '@contexts/WalletContext';
 import { useEffect } from 'react';
-import { PiSmileySadDuotone } from 'react-icons/pi';
 import Deals from '@components/Deals';
 
 declare global {
