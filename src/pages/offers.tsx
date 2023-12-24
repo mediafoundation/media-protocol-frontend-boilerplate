@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 
 import CreateOffer from "@components/CreateOffer";
 import { useApproval } from "@hooks/useApproval";
+import { Encryption } from "../../../media-sdk";
 
 declare global {
   interface BigInt {
@@ -19,7 +20,7 @@ BigInt.prototype.toJSON = function (): string {
 
 const Home: NextPage = () => {
 
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const wc = useWalletContext();
 
@@ -102,11 +103,20 @@ const Home: NextPage = () => {
                           <form onSubmit={async (event: any) => {
                               event.preventDefault();
                               const data = new FormData(event.target);
+                              const resource = await wc.resourcesContract.getResource({id: data.get("resourceId")});
+                              const decryptedKey = await wc.provider.request({
+                                method: "eth_decrypt",
+                                params: [resource.encryptedSharedKey, address],
+                              });
+                              let encryptedSharedKey = await Encryption.ethSigEncrypt(
+                                offer.publicKey,
+                                decryptedKey
+                              );
                               const tx = await wc.marketplaceHelper.swapAndCreateDealWithETH({
                                 marketplaceId: wc.marketplaceId,
                                 resourceId: data.get("resourceId"),
                                 offerId: offer.id,
-                                sharedKeyCopy: "null",
+                                sharedKeyCopy: encryptedSharedKey,
                                 minMediaAmountOut: 0,
                                 amount: (25e14).toString(),
                               });

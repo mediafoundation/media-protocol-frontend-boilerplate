@@ -68,7 +68,7 @@ const Home: NextPage = () => {
               <ul key={i}>
                 <li className='border border-dark-1500 rounded-xl px-6 py-4 my-2'>
                   <div className='flex items-center justify-between'>
-                    <span className="text-xl leading-9">#{String(res.id)} - {getShortName(res.owner,true,6)}</span>
+                    <span className="text-xl leading-9"><span className='text-dark-300'>ID:</span> {String(res.id)} <span className='text-dark-700'>&middot;</span> <span className='text-dark-300'>Owner:</span> {getShortName(res.owner,true,6)}</span>
                     <div className='flex gap-2'>
                       {!wc.decryptedResources[res.id] && (
                         <button 
