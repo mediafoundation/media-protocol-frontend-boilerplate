@@ -73,12 +73,10 @@ const Home: NextPage = () => {
                       {!wc.decryptedResources[res.id] && (
                         <button 
                           onClick={async() => {
-                            console.log(wc)
                             const decryptedKey = await wc.provider.request({
                               method: "eth_decrypt",
                               params: [res.encryptedSharedKey, address],
                             });
-                            console.log("decryptedKey",decryptedKey)
                             let attrs = JSON.parse(res.encryptedData);
                             let decryptedData = await Encryption.decrypt(
                               decryptedKey,
@@ -88,7 +86,6 @@ const Home: NextPage = () => {
                             );
                             let data = JSON.parse(decryptedData);
                             wc.setDecryptedResources({...wc.decryptedResources, [res.id]: data})
-                            console.log(data)
                           }}
                           className="btn !m-0">Decrypt
                         </button>

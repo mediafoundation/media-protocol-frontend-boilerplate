@@ -45,16 +45,17 @@ const Home: NextPage = () => {
           Here you can view all the offers on the selected marketplace, and
           create new ones.
         </p>
-        <hr className="border-dark-1500 mb-6" />
         {wc.marketplaceId && (
           <>
             <div>
-              <button onClick={wc.fetchOffers} className="btn">
-                Reload
-              </button>
-              <button onClick={() => wc.resetOffers()} className="btn">
-                Reset
-              </button>
+              <div className='flex gap-2'>
+                <button onClick={wc.fetchOffers} className="btn">
+                  Reload
+                </button>
+                <button onClick={() => wc.resetOffers()} className="btn">
+                  Reset
+                </button>
+              </div>
               <table className="divide-y divide-dark-1500 text-center">
                 <tr className="[&_th]:font-semibold [&_th]:px-3">
                   <th>ID</th>
@@ -85,26 +86,38 @@ const Home: NextPage = () => {
                     <td>
                       <textarea
                         className="w-full"
-                        defaultValue={offer.metadata}
+                        defaultValue={offer.terms.metadata}
                       />
                     </td>
                     {isConnected && (
                       <td>
-                        <button
-                          onClick={() => {
-                            wc.marketplaceHelper.swapAndCreateDealWithETH({
-                              marketplaceId: wc.marketplaceId,
-                              resourceId: 0,
-                              offerId: offer.id,
-                              sharedKeyCopy: "null",
-                              minMediaAmountOut: 0,
-                              amount: (25e14).toString(),
-                            });
-                          }}
-                          className="btn"
-                        >
-                          Take Offer
-                        </button>
+                        {!wc.encryptionPublicKey ? (
+                          <button
+                            onClick={wc.getEncryptionPublicKey}
+                            className="btn"
+                          >
+                            #1 - Get Encryption Key
+                          </button>
+                        ) : (
+                          <form onSubmit={async (event: any) => {
+                              event.preventDefault();
+                              const data = new FormData(event.target);
+                              const tx = await wc.marketplaceHelper.swapAndCreateDealWithETH({
+                                marketplaceId: wc.marketplaceId,
+                                resourceId: data.get("resourceId"),
+                                offerId: offer.id,
+                                sharedKeyCopy: "null",
+                                minMediaAmountOut: 0,
+                                amount: (25e14).toString(),
+                              });
+                              console.log(tx);
+                            }}>
+                            <input type="text" className="field w-[7.25rem] mr-2" name="resourceId" placeholder="Resource ID" />
+                            <button className="btn">
+                              Take Offer
+                            </button>
+                          </form>
+                        )}
                       </td>
                     )}
                   </tr>
@@ -139,18 +152,18 @@ const Home: NextPage = () => {
                         #1 - Get Encryption Key
                       </button>
                     ) : (
-                      <>
-                        <button
+                      <div className="flex items-center gap-3">
+{/*                         <button
                           onClick={() => approval?.approve?.()}
                           className="btn"
                         >
                           #2 - Approve Token
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => wc.registerProvider("Provider Label")}
                           className="btn"
                         >
-                          #3 - Register Provider
+                          #2 - Register Provider
                         </button>
                         Public Encryption Key:{" "}
                         <input
@@ -158,7 +171,7 @@ const Home: NextPage = () => {
                           className="inputText"
                           defaultValue={wc.encryptionPublicKey}
                         />
-                      </>
+                      </div>
                     )}
                   </div>
                 )}

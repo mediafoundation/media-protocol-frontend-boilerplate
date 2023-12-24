@@ -5,7 +5,7 @@ import { useMediaSDK } from "@hooks/useMediaSDK";
 
 //@ts-ignore
 /* import { Uniswap } from 'media-sdk'; */
-import { Uniswap } from '../../../media-sdk';
+import { Encryption, Uniswap } from '../../../media-sdk';
 import { useApproval } from "@hooks/useApproval";
 
 const MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
@@ -107,7 +107,6 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         dealCount,
         offerCount
       };
-      console.log(object);
       dispatchers.setMarketplaceData(object);
     },
     createOffer: async (
@@ -193,15 +192,29 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       console.log(transaction);
     },
     addResource: async (metadata: string) => {
-      const hash = await sdk.resourcesContract.addResource({
-        encryptedData: metadata,      
-        sharedKeyCopy: "",
-        ownerKeys: "",
-      });
-      const transaction = await sdk.publicClient.waitForTransactionReceipt({
-        hash: hash,
-      });
-      console.log(transaction);
+      try {
+        const { sharedKey, iv, tag, encryptedData } = await Encryption.encrypt(metadata);
+        let ownerSharedKeyCopy = await Encryption.ethSigEncrypt(state.encryptionPublicKey, sharedKey);
+
+        let resourceEncryptedData = JSON.stringify({
+          encryptedData: encryptedData,
+          iv: iv,
+          tag: tag,
+        });
+
+        const hash = await sdk.resourcesContract.addResource({
+          encryptedData: resourceEncryptedData,      
+          sharedKeyCopy: ownerSharedKeyCopy,
+          ownerKeys: "",
+        });
+        const transaction = await sdk.publicClient.waitForTransactionReceipt({
+          hash: hash,
+        });
+        console.log(transaction);
+      } catch (e) {
+        console.log(e)
+        return false;
+      }
     },
     approveToken: async (tokenAddress: Address, spenderAddress: Address, amount: bigint) => {
 
@@ -252,6 +265,17 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       dispatchers.setCurrentChain(chain.id);
     }
   }, [chain]);
+
+  useEffect(() => {
+    if (address) {
+      dispatchers.resetClientDeals();
+      dispatchers.resetProviderDeals();
+      dispatchers.resetResources();
+      dispatchers.resetDecryptedResources();
+      dispatchers.resetIsRegisteredProvider();
+      dispatchers.resetEncryptionPublicKey();
+    }
+  }, [address]);
 
   useEffect(() => {
     dispatchers.resetMarketplaceData();

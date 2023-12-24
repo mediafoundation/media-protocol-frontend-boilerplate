@@ -51,14 +51,16 @@ const Home: NextPage = () => {
           {isConnected && ( 
             <>
               <div>
-                <button 
-                  onClick={wc.fetchProviderDeals}
-                  className="btn">Reload
-                </button>
-                <button 
-                  onClick={() => wc.resetProviderDeals()}
-                  className="btn">Reset
-                </button>
+                <div className='flex gap-2'>
+                  <button 
+                    onClick={wc.fetchProviderDeals}
+                    className="btn">Reload
+                  </button>
+                  <button 
+                    onClick={() => wc.resetProviderDeals()}
+                    className="btn">Reset
+                  </button>
+                </div>
                 <Deals items={wc.providerDeals} />
               </div>
             </>

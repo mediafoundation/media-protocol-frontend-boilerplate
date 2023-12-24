@@ -1,8 +1,6 @@
 //@ts-ignore
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk'; */
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains, Pool } from '../../../media-sdk';
-import { ganache } from '@utils/networks';
-import { goerli } from "wagmi/chains";
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk'; */
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk';
 import { useEffect, useState } from 'react'
 import { createWalletClient, custom } from 'viem';
 
@@ -52,7 +50,6 @@ export function useMediaSDK(
       });
 
     } else {
-      console.log('not connected', currentChain);
       initSdk();
     }
 
@@ -62,7 +59,6 @@ export function useMediaSDK(
     output.marketplaceHelper = new MarketplaceHelper();
     output.resourcesContract = new Resources();
     output.quoter = new Quoter();
-    output.pool = new Pool();
 
     setData(output);
   // eslint-disable-next-line react-hooks/exhaustive-deps

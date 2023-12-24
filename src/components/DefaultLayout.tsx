@@ -85,13 +85,9 @@ export function DefaultLayout({children, pageProps}: any) {
         <main className="rounded-xl bg-dark-1700 border border-dark-1500">
           <div className="p-6">
             {children}
-            {!pageProps.isIndex && (
+            {!pageProps.isIndex && !wc.marketplaceId && (
               <Link className="block text-center my-12 border rounded-xl max-w-sm p-6 text-xl" href="/">
-                {!wc.marketplaceId ? (                 
                   <>Please initialize or select a Marketplace</>
-                ) : (
-                  <>Current Marketplace ID: {String(wc.marketplaceId)}</>
-                )}
               </Link>
             )}
           </div>
