@@ -272,8 +272,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       dispatchers.resetProviderDeals();
       dispatchers.resetResources();
       dispatchers.resetDecryptedResources();
-      dispatchers.resetIsRegisteredProvider();
       dispatchers.resetEncryptionPublicKey();
+      dispatchers.resetIsRegisteredProvider();
+      if (address) {
+        functions.getRegistrationStatus(address);
+      }
     }
   }, [address]);
 
