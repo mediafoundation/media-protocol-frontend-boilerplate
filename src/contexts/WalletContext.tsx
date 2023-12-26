@@ -148,14 +148,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       dispatchers.setEncryptionPublicKey(_encryptionPublicKey);
     },
   
-    registerProvider: async (label: string) => {
+    registerProvider: async (label: string, amount: string) => {
       const hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
         marketplaceId: state.marketplaceId,
         label,
         publicKey: state.encryptionPublicKey,
         minMediaAmountOut: 0,
         slippage: 5000,
-        amount: 25e16.toString()
+        amount: amount
       });      
 /*       const hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
         marketplaceId: state.marketplaceId,
@@ -193,8 +193,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     addResource: async (metadata: string) => {
       try {
-        const { sharedKey, iv, tag, encryptedData } = await Encryption.encrypt(metadata);
-        let ownerSharedKeyCopy = await Encryption.ethSigEncrypt(state.encryptionPublicKey, sharedKey);
+        const { sharedKey, iv, tag, encryptedData } = Encryption.encrypt(metadata);
+        let ownerSharedKeyCopy = Encryption.ethSigEncrypt(state.encryptionPublicKey, sharedKey);
 
         let resourceEncryptedData = JSON.stringify({
           encryptedData: encryptedData,
@@ -267,7 +267,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, [chain]);
 
   useEffect(() => {
-    if (address) {
+    if (address && state.marketplaceId) {
       dispatchers.resetClientDeals();
       dispatchers.resetProviderDeals();
       dispatchers.resetResources();

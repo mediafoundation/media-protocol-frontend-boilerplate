@@ -103,12 +103,15 @@ const Home: NextPage = () => {
                           <form onSubmit={async (event: any) => {
                               event.preventDefault();
                               const data = new FormData(event.target);
-                              const resource = await wc.resourcesContract.getResource({id: data.get("resourceId")});
+                              const resource = await wc.resourcesContract.getResource({
+                                id: data.get("resourceId"),
+                                address: address,
+                              });
                               const decryptedKey = await wc.provider.request({
                                 method: "eth_decrypt",
                                 params: [resource.encryptedSharedKey, address],
                               });
-                              let encryptedSharedKey = await Encryption.ethSigEncrypt(
+                              let encryptedSharedKey = Encryption.ethSigEncrypt(
                                 offer.publicKey,
                                 decryptedKey
                               );

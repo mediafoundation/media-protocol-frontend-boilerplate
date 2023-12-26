@@ -1,5 +1,5 @@
 
-import { PiHouseDuotone, PiHandshakeDuotone, PiStackDuotone, PiShoppingCartDuotone, PiSwapDuotone } from "react-icons/pi";
+import { PiHouseDuotone, PiHandshakeDuotone, PiStackDuotone, PiShoppingCartDuotone, PiSwapDuotone, PiUserCircleDuotone } from "react-icons/pi";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -14,6 +14,7 @@ export const Sidebar = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: PiHouseDuotone },
+    { name: 'My Account', href: '/account', icon: PiUserCircleDuotone },
     { name: 'All Offers', href: '/offers', icon: PiShoppingCartDuotone },
     { name: 'My Resources', href: '/resources', icon: PiStackDuotone },
     { name: 'Deals as Provider', href: '/provider', icon: PiHandshakeDuotone },
