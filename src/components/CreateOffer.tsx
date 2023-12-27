@@ -1,13 +1,12 @@
-
-import { useWalletContext } from "@contexts/WalletContext";
+import { useWalletContext } from "@contexts/WalletContext"
 
 export default function CreateOffer() {
-  const wc = useWalletContext();
+  const wc = useWalletContext()
 
   const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    const data = new FormData(event.target);
-    
+    event.preventDefault()
+    const data = new FormData(event.target)
+
     const tx: any = await wc.createOffer(
       data.get("maximumDeals"),
       data.get("autoAccept") === "on" ? true : false,
@@ -16,9 +15,9 @@ export default function CreateOffer() {
       data.get("billFullPeriods") === "on" ? true : false,
       data.get("singlePeriodOnly") === "on" ? true : false,
       data.get("metadata")
-    );
-    console.log(tx);
-  };
+    )
+    console.log(tx)
+  }
   return (
     <form onSubmit={handleSubmit}>
       <fieldset className="rounded-lg border border-dark-1500 p-4 mb-4 [&_>div]:flex [&_>div]:gap-3 [&_>div]:items-center [&_>div]:min-h-[3rem] [&_>div>label]:block [&_>div>label]:min-w-[10rem]">
@@ -67,7 +66,11 @@ export default function CreateOffer() {
         </div>
         <div>
           <label htmlFor="singlePeriodOnly">Single Period Only</label>
-          <input id="singlePeriodOnly" name="singlePeriodOnly" type="checkbox" />
+          <input
+            id="singlePeriodOnly"
+            name="singlePeriodOnly"
+            type="checkbox"
+          />
         </div>
         <div>
           <label htmlFor="metadata">Metadata</label>
@@ -86,5 +89,5 @@ export default function CreateOffer() {
         </div>
       </fieldset>
     </form>
-  );
+  )
 }
