@@ -9,6 +9,7 @@ import { useApproval } from "@hooks/useApproval"
 
 //@ts-ignore
 import { Encryption } from "media-sdk"
+import Link from "next/link"
 
 declare global {
   interface BigInt {
@@ -91,53 +92,76 @@ const Home: NextPage = () => {
                     </td>
                     {isConnected && (
                       <td>
-                        {!wc.encryptionPublicKey ? (
+                        {address == offer.provider ? (
                           <button
-                            onClick={wc.getEncryptionPublicKey}
                             className="btn"
-                          >
-                            #1 - Get Encryption Key
-                          </button>
-                        ) : (
-                          <form
-                            onSubmit={async (event: any) => {
-                              event.preventDefault()
-                              const data = new FormData(event.target)
-                              const resource =
-                                await wc.resourcesContract.getResource({
-                                  id: data.get("resourceId"),
-                                  address: address,
+                            onClick={async () => {
+                              const hash =
+                                await wc.marketplace.deleteOffer({
+                                  marketplaceId: wc.marketplaceId, 
+                                  offerId: offer.id,
                                 })
-                              const decryptedKey = await wc.provider.request({
-                                method: "eth_decrypt",
-                                params: [resource.encryptedSharedKey, address],
-                              })
-                              let encryptedSharedKey = Encryption.ethSigEncrypt(
-                                offer.publicKey,
-                                decryptedKey
-                              )
-                              const tx =
-                                await wc.marketplaceHelper.swapAndCreateDealWithETH(
-                                  {
-                                    marketplaceId: wc.marketplaceId,
-                                    resourceId: data.get("resourceId"),
-                                    offerId: offer.id,
-                                    sharedKeyCopy: encryptedSharedKey,
-                                    minMediaAmountOut: 0,
-                                    amount: (25e14).toString(),
-                                  }
-                                )
-                              console.log(tx)
+                              const transaction =
+                                await wc.publicClient.waitForTransactionReceipt({
+                                  hash: hash,
+                                })
+                              console.log(transaction)
+                              wc.fetchOffers()
                             }}
                           >
-                            <input
-                              type="text"
-                              className="field w-[7.25rem] mr-2"
-                              name="resourceId"
-                              placeholder="Resource ID"
-                            />
-                            <button className="btn">Take Offer</button>
-                          </form>
+                            Delete Offer
+                          </button>
+                        ) : (
+                          <>
+                            {!wc.encryptionPublicKey ? (
+                              <button
+                                onClick={wc.getEncryptionPublicKey}
+                                className="btn"
+                              >
+                                #1 - Get Encryption Key
+                              </button>
+                            ) : (
+                              <form
+                                onSubmit={async (event: any) => {
+                                  event.preventDefault()
+                                  const data = new FormData(event.target)
+                                  const resource =
+                                    await wc.resourcesContract.getResource({
+                                      id: data.get("resourceId"),
+                                      address: address,
+                                    })
+                                  const decryptedKey = await wc.provider.request({
+                                    method: "eth_decrypt",
+                                    params: [resource.encryptedSharedKey, address],
+                                  })
+                                  let encryptedSharedKey = Encryption.ethSigEncrypt(
+                                    offer.publicKey,
+                                    decryptedKey
+                                  )
+                                  const tx =
+                                    await wc.marketplaceHelper.swapAndCreateDealWithETH(
+                                      {
+                                        marketplaceId: wc.marketplaceId,
+                                        resourceId: data.get("resourceId"),
+                                        offerId: offer.id,
+                                        sharedKeyCopy: encryptedSharedKey,
+                                        minMediaAmountOut: 0,
+                                        amount: (25e14).toString(),
+                                      }
+                                    )
+                                  console.log(tx)
+                                }}
+                              >
+                                <input
+                                  type="text"
+                                  className="field w-[7.25rem] mr-2"
+                                  name="resourceId"
+                                  placeholder="Resource ID"
+                                />
+                                <button className="btn">Take Offer</button>
+                              </form>
+                            )}
+                          </>
                         )}
                       </td>
                     )}
@@ -162,38 +186,9 @@ const Home: NextPage = () => {
                 ) : (
                   <div>
                     <div className="my-4">
-                      Please register as a provider below in order to create
+                      Please <Link href="/account">register as a provider</Link> in order to create
                       offers.
                     </div>
-                    {!wc.encryptionPublicKey ? (
-                      <button
-                        onClick={wc.getEncryptionPublicKey}
-                        className="btn"
-                      >
-                        #1 - Get Encryption Key
-                      </button>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        {/*                         <button
-                          onClick={() => approval?.approve?.()}
-                          className="btn"
-                        >
-                          #2 - Approve Token
-                        </button> */}
-                        <button
-                          onClick={() => wc.registerProvider("Provider Label")}
-                          className="btn"
-                        >
-                          #2 - Register Provider
-                        </button>
-                        Public Encryption Key:{" "}
-                        <input
-                          type="text"
-                          className="inputText"
-                          defaultValue={wc.encryptionPublicKey}
-                        />
-                      </div>
-                    )}
                   </div>
                 )}
               </>
