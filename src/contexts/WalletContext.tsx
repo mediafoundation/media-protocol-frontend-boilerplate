@@ -1,7 +1,12 @@
-import { useContext, createContext, ReactNode, useEffect } from "react";
-import { InitializeContext } from "@contexts/Contextor";
-import { useAccount, useNetwork } from "wagmi";
-import { useMediaSDK } from "@hooks/useMediaSDK";
+import { useContext, createContext, ReactNode, useEffect } from "react"
+import { InitializeContext } from "@contexts/Contextor"
+import { Address, useAccount, useNetwork } from "wagmi"
+import { useMediaSDK } from "@hooks/useMediaSDK"
+
+//@ts-ignore
+import { Encryption } from "media-sdk"
+/* import { Encryption } from '../../../media-sdk'; */
+import { parseUnits } from "viem"
 
 const initialState = {
   offers: [],
@@ -15,89 +20,96 @@ const initialState = {
   encryptionPublicKey: null,
   sdkReady: false,
   currentChain: null,
-};
+}
 
-export const Context = createContext(null);
+export const Context = createContext(null)
 
-export const useWalletContext = () => useContext(Context) as any;
+export const useWalletContext = () => useContext(Context) as any
 
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
-  const { state, dispatchers } = InitializeContext(initialState);
+  const { state, dispatchers } = InitializeContext(initialState)
 
-  const { address, isConnected } = useAccount();
+  const { address, isConnected } = useAccount()
 
-  const { chain } = useNetwork();
+  const { chain } = useNetwork()
 
-  const sdk = useMediaSDK({ address, isConnected, chain });
+  const sdk = useMediaSDK({ address, isConnected, chain })
 
   if (sdk && !state.sdkReady) {
-    dispatchers.setSdkReady(true);
+    dispatchers.setSdkReady(true)
   }
 
   let functions = {
     fetchOffers: async () => {
       const result: any = await sdk.marketplaceViewer.getAllOffersPaginating({
-        marketPlaceId: state.marketplaceId,
-      });
-      dispatchers.setOffers(result);
+        marketplaceId: state.marketplaceId,
+      })
+      dispatchers.setOffers(result)
     },
     initMarket: async () => {
       const hash = await sdk.marketplace.initializeMarketplace({
         requiredStake: 100,
         marketFeeTo: address,
-        marketFeeRate: 5,
-      });
+        marketFeeRate: 500,
+      })
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
-      });
-      dispatchers.setMarketplaceId(BigInt(transaction.logs[0].topics[1]));
+      })
+      dispatchers.setMarketplaceId(BigInt(transaction.logs[0].topics[1]))
     },
     fetchResources: async () => {
       const result: any = await sdk.resourcesContract.getPaginatedResources({
         address: address,
-      });
-      dispatchers.setResources(result[0]);
+      })
+      dispatchers.setResources(result[0])
     },
     fetchProviderDeals: async () => {
       const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         address: address,
         isProvider: true,
-      });
-      dispatchers.setProviderDeals(result);
+      })
+      dispatchers.setProviderDeals(result)
     },
     fetchClientDeals: async () => {
       const result: any = await sdk.marketplaceViewer.getAllDealsPaginating({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         address: address,
         isProvider: false,
-      });
-      dispatchers.setClientDeals(result);
+      })
+      dispatchers.setClientDeals(result)
     },
     getMarketplaceData: async () => {
       //const result: any = await resources.view("getResources", [address]);
       const marketFeeTo: any = await sdk.marketplace.view("getMarketFeeTo", [
         state.marketplaceId,
-      ]);
+      ])
       const marketFeeRate: any = await sdk.marketplace.view(
         "getMarketFeeRate",
         [state.marketplaceId]
-      );
+      )
       const requiredStake: any = await sdk.marketplace.view(
         "getRequiredStake",
         [state.marketplaceId]
-      );
-      const dealCount: any = await sdk.marketplace.view("dealCounter", [
+      )
+      const dealCount: any = await sdk.marketplace.view("dealAutoIncrement", [
         state.marketplaceId,
-      ]);
+      ])
+      const offerCount: any = await sdk.marketplace.view("offerAutoIncrement", [
+        state.marketplaceId,
+      ])
+      const owner: any = await sdk.marketplace.view("owners", [
+        state.marketplaceId,
+      ])
       const object = {
         marketFeeTo,
         marketFeeRate,
         requiredStake,
         dealCount,
-      };
-      console.log(object);
-      dispatchers.setMarketplaceData(object);
+        offerCount,
+        owner,
+      }
+      dispatchers.setMarketplaceData(object)
     },
     createOffer: async (
       maximumDeals: string,
@@ -109,102 +121,186 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       metadata: string
     ) => {
       const hash = await sdk.marketplace.createOffer({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         maximumDeals,
         autoAccept,
         pricePerSecond,
         minDealDuration,
         billFullPeriods,
         singlePeriodOnly,
-        metadata
-      });
+        metadata,
+      })
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
-      });
-      console.log(transaction);
+      })
+      console.log(transaction)
     },
     getRegistrationStatus: async (address: any) => {
       const result: any = await sdk.marketplace.view("isRegisteredProvider", [
         state.marketplaceId,
         address,
-      ]);
-      dispatchers.setIsRegisteredProvider(result);
+      ])
+      dispatchers.setIsRegisteredProvider(result)
     },
     getEncryptionPublicKey: async () => {
       let _encryptionPublicKey = await sdk.provider.request({
         method: "eth_getEncryptionPublicKey",
         params: [address], // you must have access to the specified account
-      });
-      dispatchers.setEncryptionPublicKey(_encryptionPublicKey);
+      })
+      dispatchers.setEncryptionPublicKey(_encryptionPublicKey)
     },
-    /*     
-solidity function
 
-function addLiquidityAndRegisterWithETH(
-      uint256 marketplaceId,
-      string memory label,
-      string memory publicKey
-    ) external payable nonReentrant returns (uint256 lpTokens){
-      // Wrap raw ETH to WETH
-      IWETH weth = IWETH(router.WETH());
-      weth.deposit{value: msg.value}();
-      IERC20 _weth = IERC20(router.WETH());
-
-      (uint256 mediaAmount, uint256 wethAmount) = handleTokenSwap(_weth, msg.value);
-      return handleRegister(marketplaceId, mediaAmount, wethAmount, label, publicKey);
-  } */
-    registerProvider: async (label: string) => {
-      const hash = await sdk.helper.execute(
-        "addLiquidityAndRegisterWithETH",
-        [state.marketplaceId, label, state.encryptionPublicKey],
-        100
-      );
+    registerProvider: async ({ label, inputToken, inputAmount }: any) => {
+      let hash
+      if (inputToken.symbol == "ETH") {
+        hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
+          marketplaceId: state.marketplaceId,
+          label,
+          publicKey: state.encryptionPublicKey,
+          minMediaAmountOut: 0,
+          slippage: 5000,
+          amount: parseUnits(inputAmount, inputToken.decimals),
+        })
+      } else {
+        hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
+          marketplaceId: state.marketplaceId,
+          inputToken: inputToken.address,
+          inputAmount: parseUnits(inputAmount, inputToken.decimals),
+          label,
+          publicKey: state.encryptionPublicKey,
+          slippage: 5000,
+        })
+      }
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
-      });
-      console.log(transaction);
+      })
+      console.log(transaction)
     },
     unregisterProvider: async () => {
-      const hash = await sdk.helper.execute(
-        "unregisterRemoveLiquidityAndSwap",
+      const hash = await sdk.marketplaceHelper.execute(
+        "unregisterRemoveLiquidity",
         [state.marketplaceId, 0, 0]
-      );
+      )
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
-      });
-      console.log(transaction);
+      })
+      console.log(transaction)
     },
     cancelDeal: async (id: bigint) => {
       const hash = await sdk.marketplace.cancelDeal({
-        marketPlaceId: state.marketplaceId,
+        marketplaceId: state.marketplaceId,
         dealId: id,
-      });
+      })
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
-      });
-      console.log(transaction);
+      })
+      console.log(transaction)
     },
-  };
+    addResource: async (metadata: string) => {
+      try {
+        const { sharedKey, iv, tag, encryptedData } =
+          Encryption.encrypt(metadata)
+        let ownerSharedKeyCopy = Encryption.ethSigEncrypt(
+          state.encryptionPublicKey,
+          sharedKey
+        )
+
+        let resourceEncryptedData = JSON.stringify({
+          encryptedData: encryptedData,
+          iv: iv,
+          tag: tag,
+        })
+
+        const hash = await sdk.resourcesContract.addResource({
+          encryptedData: resourceEncryptedData,
+          sharedKeyCopy: ownerSharedKeyCopy,
+          ownerKeys: "",
+        })
+        const transaction = await sdk.publicClient.waitForTransactionReceipt({
+          hash: hash,
+        })
+        console.log(transaction)
+      } catch (e) {
+        console.log(e)
+        return false
+      }
+    },
+    approveToken: async (
+      tokenAddress: Address,
+      spenderAddress: Address,
+      amount: bigint
+    ) => {},
+    //     fetchTokenInfo: async (token: any, walletAddress: any) => {
+    // /*       let provider: any = await detectEthereumProvider();
+    //       provider = new providers.Web3Provider(provider); */
+    //       let contract;
+    //       let balance = BigInt(0);
+    //       let allowance = BigInt(0);
+    //       //if address is _ we assume is the native coin (ETH) and not an ERC20 Token
+    //       if (token.address == "_") {
+    //         balance = await sdk.publicClient.getBalance({
+    //           address: walletAddress || sdk.publicClient.address,
+    //         });
+    //         allowance = BigInt(MAX_INT);
+    //       } else {
+    //         contract = new ethers.Contract(
+    //           token.address,
+    //           MediaERC20.abi,
+    //           provider.getSigner()
+    //         );
+    //         try {
+    //           balance = await contract.balanceOf(walletAddress);
+    //           console.log("balance", balance.toString());
+    //           allowance = await contract.allowance(
+    //             walletAddress,
+    //             ProviderHelper.networks[provider.network.chainId].address
+    //           );
+    //           console.log("allowance", allowance);
+    //         } catch (error) {
+    //           console.error("Error fetching token data:", error);
+    //         }
+    //       }
+    //       return {
+    //         balance: balance,
+    //         allowance: allowance,
+    //         contract: contract,
+    //       };
+    //     }
+  }
 
   useEffect(() => {
     if (chain && state.currentChain !== chain.id) {
-      dispatchers.resetInitialState();
-      dispatchers.setCurrentChain(chain.id);
+      dispatchers.resetInitialState()
+      dispatchers.setCurrentChain(chain.id)
     }
-  }, [chain]);
+  }, [chain])
 
   useEffect(() => {
-    dispatchers.resetMarketplaceData();
-    dispatchers.resetOffers();
-    dispatchers.resetProviderDeals();
-    dispatchers.resetClientDeals();
-    if (state.marketplaceId) {
-      functions.getMarketplaceData();
+    if (address && state.marketplaceId) {
+      dispatchers.resetClientDeals()
+      dispatchers.resetProviderDeals()
+      dispatchers.resetResources()
+      dispatchers.resetDecryptedResources()
+      dispatchers.resetEncryptionPublicKey()
+      dispatchers.resetIsRegisteredProvider()
       if (address) {
-        functions.getRegistrationStatus(address);
+        functions.getRegistrationStatus(address)
       }
     }
-  }, [state.marketplaceId]);
+  }, [address])
+
+  useEffect(() => {
+    dispatchers.resetMarketplaceData()
+    dispatchers.resetOffers()
+    dispatchers.resetProviderDeals()
+    dispatchers.resetClientDeals()
+    if (state.marketplaceId) {
+      functions.getMarketplaceData()
+      if (address) {
+        functions.getRegistrationStatus(address)
+      }
+    }
+  }, [state.marketplaceId])
 
   return (
     <Context.Provider
@@ -212,5 +308,5 @@ function addLiquidityAndRegisterWithETH(
     >
       {children}
     </Context.Provider>
-  );
-};
+  )
+}

@@ -1,32 +1,29 @@
-
-import type { NextPage } from 'next';
-import { useAccount } from 'wagmi';
-import { useWalletContext } from '@contexts/WalletContext';
-import { useEffect } from 'react';
-import { PiSmileySadDuotone } from 'react-icons/pi';
-import Deals from '@components/Deals';
+import type { NextPage } from "next"
+import { useAccount } from "wagmi"
+import { useWalletContext } from "@contexts/WalletContext"
+import { useEffect } from "react"
+import Deals from "@components/Deals"
 
 declare global {
   interface BigInt {
-    toJSON(): string;
+    toJSON(): string
   }
 }
 
 BigInt.prototype.toJSON = function (): string {
-  return this.toString();
-};
+  return this.toString()
+}
 
 const Home: NextPage = () => {
+  const { address, isConnected } = useAccount()
 
-  const { address, isConnected } = useAccount();
-  
-  const wc = useWalletContext();
+  const wc = useWalletContext()
 
   useEffect(() => {
     if (
-      wc.sdkReady && 
-      wc.providerDeals.length == 0 && 
-      wc.isRegisteredProvider && 
+      wc.sdkReady &&
+      wc.providerDeals.length == 0 &&
+      wc.isRegisteredProvider &&
       wc.marketplaceId
     ) {
       wc.fetchProviderDeals()
@@ -38,28 +35,27 @@ const Home: NextPage = () => {
       wc.fetchProviderDeals()
     }
   }, [address])
-  
+
   return (
     <>
-      <h1 className="text-3xl font-bold">
-        Deals as Provider
-      </h1>
-      <p>
-        Here you can view all the deals you have as a provider.
-      </p>
-      {wc.marketplaceId && ( 
+      <h1>Deals as Provider</h1>
+      <p>Here you can view all the deals you have as a provider.</p>
+      {wc.marketplaceId && (
         <>
-          {isConnected && ( 
+          {isConnected && (
             <>
               <div>
-                <button 
-                  onClick={wc.fetchProviderDeals}
-                  className="btn">Reload
-                </button>
-                <button 
-                  onClick={() => wc.resetProviderDeals()}
-                  className="btn">Reset
-                </button>
+                <div className="flex gap-2">
+                  <button onClick={wc.fetchProviderDeals} className="btn">
+                    Reload
+                  </button>
+                  <button
+                    onClick={() => wc.resetProviderDeals()}
+                    className="btn"
+                  >
+                    Reset
+                  </button>
+                </div>
                 <Deals items={wc.providerDeals} />
               </div>
             </>
@@ -67,7 +63,7 @@ const Home: NextPage = () => {
         </>
       )}
     </>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

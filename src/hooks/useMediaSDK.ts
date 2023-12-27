@@ -1,17 +1,18 @@
 //@ts-ignore
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from 'media-sdk';
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, Helper } from '../../../media-sdk'; */
-import { latestnet } from '@utils/networks';
-import { useEffect, useState } from 'react'
-import { createWalletClient, custom } from 'viem';
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk';
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk'; */
+import { useEffect, useState } from "react"
+import { createWalletClient, custom } from "viem"
 
-export function useMediaSDK(
-  { 
-    address, 
-    isConnected, 
-    chain 
-  }: { address: any, isConnected: boolean, chain: any }) {
-    
+export function useMediaSDK({
+  address,
+  isConnected,
+  chain,
+}: {
+  address: any
+  isConnected: boolean
+  chain: any
+}) {
   const [data, setData] = useState(null as any)
 
   useEffect(() => {
@@ -20,44 +21,47 @@ export function useMediaSDK(
       publicClient: null as any,
       marketplace: null as any,
       marketplaceViewer: null as any,
+      marketplaceHelper: null as any,
       resourcesContract: null as any,
-      helper: null as any,
-      provider: null as any
-    };
+      provider: null as any,
+      quoter: null as any,
+      pool: null as any,
+    }
+    let currentChain
+    if (chain && validChains.hasOwnProperty(chain.id)) {
+      currentChain = chain
+    } else {
+      console.log("invalid chain")
+    }
 
-    let currentChain = chain || latestnet as any;
+    if (isConnected) {
+      output.provider = window.ethereum as any
 
-    if(isConnected) {
-      output.provider = window.ethereum as any;
-      
       const walletClient = createWalletClient({
         account: address,
         chain: currentChain,
-        transport: custom(output.provider)
+        transport: custom(output.provider),
       })
 
-      output.walletClient = walletClient;
+      output.walletClient = walletClient
 
       initSdk({
-        chain: chain as any,
-        walletClient: walletClient as any
-      });
-
+        walletClient: walletClient as any,
+      })
     } else {
-      initSdk({
-        chain: currentChain,
-      });
+      initSdk()
     }
 
-    output.publicClient = config().publicClient;
-    output.marketplace = new Marketplace();
-    output.marketplaceViewer = new MarketplaceViewer();
-    output.resourcesContract = new Resources();
-    output.helper = new Helper();
+    output.publicClient = config().publicClient
+    output.marketplace = new Marketplace()
+    output.marketplaceViewer = new MarketplaceViewer()
+    output.marketplaceHelper = new MarketplaceHelper()
+    output.resourcesContract = new Resources()
+    output.quoter = new Quoter()
 
-    setData(output);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chain, address]);
+    setData(output)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chain, address])
 
-  return data;
+  return data
 }

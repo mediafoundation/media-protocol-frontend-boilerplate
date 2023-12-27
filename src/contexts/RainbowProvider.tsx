@@ -4,31 +4,30 @@ import {
   darkTheme,
   connectorsForWallets,
   Locale,
-} from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { publicProvider } from 'wagmi/providers/public';
-import { baseGoerli, goerli } from "wagmi/chains";
-import { latestnet } from "@utils/networks";
-import { useIsMounted } from "@hooks/useIsMounted";
-import { 
+} from "@rainbow-me/rainbowkit"
+import { configureChains, createConfig, WagmiConfig } from "wagmi"
+import { publicProvider } from "wagmi/providers/public"
+import { goerli, baseGoerli } from "wagmi/chains"
+import { useIsMounted } from "@hooks/useIsMounted"
+import {
   injectedWallet,
   braveWallet,
   metaMaskWallet,
   coin98Wallet,
   rainbowWallet,
   //walletConnectWallet
-} from '@rainbow-me/rainbowkit/wallets';
-import useCurrentTheme from "@hooks/useCurrentTheme";
-import { useRouter } from "next/router";
-import { ReactNode } from 'react';
+} from "@rainbow-me/rainbowkit/wallets"
+import useCurrentTheme from "@hooks/useCurrentTheme"
+import { useRouter } from "next/router"
+import { ReactNode } from "react"
 
-const chains = [latestnet, baseGoerli, goerli ];
+const chains = [goerli, baseGoerli]
 
-const projectId = "2b592927eaad05eff4242d53ee9642f2";
+const projectId = "2b592927eaad05eff4242d53ee9642f2"
 
 const connectors = connectorsForWallets([
   {
-    groupName: 'Recommended',
+    groupName: "Recommended",
     wallets: [
       metaMaskWallet({ chains, projectId }),
       injectedWallet({ chains }),
@@ -38,45 +37,42 @@ const connectors = connectorsForWallets([
       //walletConnectWallet({ chains, projectId }),
     ],
   },
-]);
+])
 
-const { publicClient } = configureChains(chains, [publicProvider()]);
+const { publicClient } = configureChains(chains, [publicProvider()])
 
 const wagmiConfig = createConfig({
   autoConnect: true,
   connectors: connectors,
   publicClient,
-});
-
+})
 
 export const RainbowProvider = ({ children }: { children: ReactNode }) => {
-
-
   const demoAppInfo = {
-    appName: 'Media Protocol Demo',
-  };
+    appName: "Media Protocol Demo",
+  }
 
-  const currentTheme = useCurrentTheme();
+  const currentTheme = useCurrentTheme()
 
-  let walletTheme = currentTheme == "dark" ? darkTheme : lightTheme;
+  let walletTheme = currentTheme == "dark" ? darkTheme : lightTheme
 
-  const isMounted = useIsMounted();
+  const isMounted = useIsMounted()
 
-  const { locale } = useRouter() as { locale: Locale };
+  const { locale } = useRouter() as { locale: Locale }
 
-  if (!isMounted) return null;
+  if (!isMounted) return null
 
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider 
+      <RainbowKitProvider
         appInfo={demoAppInfo}
-        chains={chains} 
-        theme={walletTheme()} 
+        chains={chains}
+        theme={walletTheme()}
         modalSize="compact"
         locale={locale}
       >
         {children}
       </RainbowKitProvider>
     </WagmiConfig>
-  );
+  )
 }
