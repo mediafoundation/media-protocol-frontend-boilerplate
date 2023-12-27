@@ -1,17 +1,17 @@
-import { Pool, Position, FeeAmount } from "@uniswap/v3-sdk";
+import { Pool, Position, FeeAmount } from "@uniswap/v3-sdk"
 
 const uniswapCalculator = async (
   wc: any,
   liquidity: any,
   token0: any,
   token1: any,
-  fee: any = FeeAmount.LOW,
+  fee: any = FeeAmount.LOW
 ) => {
-  const tickLower = -887000;
-  const tickUpper = 887000;
+  const tickLower = -887000
+  const tickUpper = 887000
 
-  const poolAddress = Pool.getAddress(token0, token1, fee);
-  let poolData = await wc.pool.getPoolData(poolAddress);
+  const poolAddress = Pool.getAddress(token0, token1, fee)
+  let poolData = await wc.pool.getPoolData(poolAddress)
 
   const pool = new Pool(
     token0,
@@ -21,18 +21,18 @@ const uniswapCalculator = async (
     0,
     poolData.slot0[1],
     []
-  );
+  )
   const liquidityPosition = new Position({
     pool: pool,
     liquidity: liquidity,
     tickLower: tickLower,
     tickUpper: tickUpper,
-  });
+  })
 
-  const tokenAmounts = liquidityPosition.mintAmounts;
+  const tokenAmounts = liquidityPosition.mintAmounts
 
   // Return the calculated values
-  return tokenAmounts;
-};
+  return tokenAmounts
+}
 
-export default uniswapCalculator;
+export default uniswapCalculator

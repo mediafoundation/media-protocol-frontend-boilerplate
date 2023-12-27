@@ -1,14 +1,11 @@
 import type { NextPage } from "next"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect, useState } from "react"
-import { getShortName } from "@utils/utils"
 import { useAccount } from "wagmi"
-
-import { useApproval } from "@hooks/useApproval"
-import { Encryption } from "../../../media-sdk"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
-import { formatUnits } from "viem"
 import Calculate from "@components/calculate"
+import { WETH_TOKEN } from "@utils/constants"
+import { Token } from "@uniswap/sdk-core"
 
 declare global {
   interface BigInt {
@@ -21,9 +18,12 @@ BigInt.prototype.toJSON = function (): string {
 }
 
 const Home: NextPage = () => {
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
 
   const wc = useWalletContext()
+
+  const [selectedAmount, setSelectedAmount] = useState("0")
+  const [inputToken, setInputToken] = useState<Token>(WETH_TOKEN())
 
   useEffect(() => {
     if (wc.offers.length == 0 && wc.marketplaceId) {
@@ -31,13 +31,19 @@ const Home: NextPage = () => {
     }
   }, [wc.marketplaceId])
 
-  const approval = useApproval(
-    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    "0xC32B92D89A88e7f6B236F2024de68b1c0A6e45a4",
-    BigInt((2e18).toString())
-  )
+  useEffect(() => {
+    if (wc.currentChain) {
+      setInputToken(WETH_TOKEN(wc.currentChain))
+    }
+  }, [wc.currentChain])
 
-  const [selectedAmount, setSelectedAmount] = useState("0")
+  const calcProps = {
+    required: wc?.marketplaceData?.requiredStake,
+    selectedAmount,
+    setSelectedAmount,
+    inputToken,
+    setInputToken,
+  }
 
   return (
     <>
@@ -64,7 +70,8 @@ const Home: NextPage = () => {
                 ) : (
                   <div className="[&_>div]:mb-2">
                     <p>
-                      Your are currently not registered as a provider, please register.
+                      Your are currently not registered as a provider, please
+                      register.
                     </p>
                     <div>
                       Public Encryption Key:{" "}
@@ -87,15 +94,17 @@ const Home: NextPage = () => {
                     <h1>Calculate required token amounts</h1>
                     <hr className="border-dark-1500 my-6" />
                     <div>
-                      <Calculate 
-                        required={wc.marketplaceData.requiredStake} 
-                        selectedAmount={selectedAmount} 
-                        setSelectedAmount={setSelectedAmount} 
-                      />
+                      <Calculate calcProps={calcProps} />
                       {wc.encryptionPublicKey && (
                         <button
-                          onClick={() => wc.registerProvider("Provider Label", selectedAmount)}
-                          className="btn ml-2"
+                          onClick={() =>
+                            wc.registerProvider({
+                              label: "Provider Label",
+                              inputToken: inputToken,
+                              inputAmount: selectedAmount,
+                            })
+                          }
+                          className="btn"
                         >
                           Register Provider
                         </button>

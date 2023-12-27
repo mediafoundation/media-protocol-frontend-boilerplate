@@ -32,11 +32,7 @@ const Home: NextPage = () => {
   const wc = useWalletContext()
 
   useEffect(() => {
-    if (
-      wc.sdkReady &&
-      isConnected &&
-      wc.resources
-    ) {
+    if (wc.sdkReady && isConnected && wc.resources) {
       wc.fetchResources()
     }
   }, [address, isConnected, wc.sdkReady])
@@ -70,7 +66,9 @@ const Home: NextPage = () => {
                         {String(res.id)}{" "}
                         <span className="text-dark-700">&middot;</span>{" "}
                         <span className="text-dark-300">Owner:</span>{" "}
-                        {address == res.owner ? "You" : getShortName(res.owner, true, 6)}
+                        {address == res.owner
+                          ? "You"
+                          : getShortName(res.owner, true, 6)}
                       </span>
                       <div className="flex gap-2">
                         {!wc.decryptedResources[res.id] && (

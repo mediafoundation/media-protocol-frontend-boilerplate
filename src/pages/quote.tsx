@@ -2,7 +2,7 @@ import type { NextPage } from "next"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect, useState } from "react"
 import { Token } from "@uniswap/sdk-core"
-import { MEDIA_TOKEN, USDC_TOKEN, WETH_TOKEN } from "@utils/constants"
+import { MEDIA_TOKEN, UNI_TOKEN, USDC_TOKEN, WETH_TOKEN } from "@utils/constants"
 import LoadingButton from "@components/LoadingButton"
 const { parseUnits, formatUnits } = require("viem")
 
@@ -16,15 +16,11 @@ export function getStaticProps() {
 }
 
 const Quote: NextPage = () => {
-  const UNI_TOKEN = new Token(
-    1,
-    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    18,
-    "UNI",
-    "Uniswap"
-  )
+
 
   const wc = useWalletContext()
+
+  let chainId = wc.currentChain || 5
 
   useEffect(() => {
     if (wc.currentChain) {
@@ -50,7 +46,7 @@ const Quote: NextPage = () => {
 
   const [inputAmount, setInputAmount] = useState("1.2345")
   const [output, setOutput] = useState(initialState)
-  const [inputToken, setInputToken] = useState(UNI_TOKEN)
+  const [inputToken, setInputToken] = useState(USDC_TOKEN(chainId))
   const [liquidity, setLiquidity] = useState(
     formatUnits("1357149080105453931", 18)
   )
@@ -66,16 +62,16 @@ const Quote: NextPage = () => {
   const handleChange = (e: any) => {
     switch (e.target.value) {
       case "WETH":
-        setInputToken(WETH_TOKEN(wc.currentChain))
+        setInputToken(WETH_TOKEN(chainId))
         break
       case "USDC":
-        setInputToken(USDC_TOKEN(wc.currentChain))
+        setInputToken(USDC_TOKEN(chainId))
         break
       /*       case "MEDIA":
-        setInputToken(MEDIA_TOKEN(wc.currentChain));
+        setInputToken(MEDIA_TOKEN(chainId));
         break; */
       case "UNI":
-        setInputToken(UNI_TOKEN)
+        setInputToken(UNI_TOKEN(chainId))
         break
     }
   }
@@ -88,8 +84,8 @@ const Quote: NextPage = () => {
   async function calculate(liquidity: any) {
     let { token0, token1, amount0, amount1 } = await wc.quoter.mintAmounts(
       parseUnits(liquidity, 18).toString(),
-      MEDIA_TOKEN(wc.currentChain),
-      WETH_TOKEN(wc.currentChain)
+      MEDIA_TOKEN(chainId),
+      WETH_TOKEN(chainId)
     )
     let required0Half = await getQuote(token0, amount0, inputToken)
     let required1Half = await getQuote(token1, amount1, inputToken)
@@ -106,6 +102,7 @@ const Quote: NextPage = () => {
   console.log(wc.quoter)
   let route =
     wc.quoter && output && wc.quoter.fancyRoute(output.path, output.fees)
+
   return (
     <>
       <h1>Quote</h1>
@@ -134,7 +131,7 @@ const Quote: NextPage = () => {
               await getQuote(
                 inputToken,
                 parseUnits(inputAmount, inputToken.decimals),
-                MEDIA_TOKEN(wc.currentChain)
+                MEDIA_TOKEN(chainId)
               )
             )
           }
@@ -146,7 +143,7 @@ const Quote: NextPage = () => {
             type="text"
             value={formatUnits(
               output.quote,
-              MEDIA_TOKEN(wc.currentChain).decimals
+              MEDIA_TOKEN(chainId).decimals
             )}
             className="field"
           />

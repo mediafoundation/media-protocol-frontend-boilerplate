@@ -3,16 +3,12 @@ import {
   useContractWrite,
   usePrepareContractWrite,
   useWaitForTransaction,
-} from 'wagmi';
-import { erc20ABI } from '@wagmi/core';
-import { useEffect, useState } from 'react';
+} from "wagmi"
+import { erc20ABI } from "@wagmi/core"
+import { useEffect, useState } from "react"
 
-export function useApproval(
-  token: Address,
-  spender: Address,
-  amount: bigint
-) {
-  const [finished, setFinished] = useState(false);
+export function useApproval(token: Address, spender: Address, amount: bigint) {
+  const [finished, setFinished] = useState(false)
 
   const {
     config,
@@ -21,13 +17,13 @@ export function useApproval(
   } = usePrepareContractWrite({
     address: token,
     abi: erc20ABI,
-    functionName: 'approve',
+    functionName: "approve",
     args: [spender, amount],
     enabled: amount > 0,
-  });
+  })
 
   const { data, error, isError, isLoading, isSuccess, write, status } =
-    useContractWrite(config);
+    useContractWrite(config)
 
   const {
     isLoading: isLoadingWaitForTransaction,
@@ -35,13 +31,13 @@ export function useApproval(
   } = useWaitForTransaction({
     hash: data?.hash,
     confirmations: 2,
-  });
+  })
 
   useEffect(() => {
     if (isSuccessWaitForTransaction) {
-      setFinished(true);
+      setFinished(true)
     }
-  }, [isSuccessWaitForTransaction]);
+  }, [isSuccessWaitForTransaction])
 
   return {
     approve: write,
@@ -57,5 +53,5 @@ export function useApproval(
     isSuccessWaitForTransaction,
     status,
     finished,
-  };
+  }
 }

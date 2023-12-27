@@ -1,4 +1,4 @@
-import { Chain } from "wagmi";
+import { Chain } from "wagmi"
 
 export const ganache = {
   id: 5,
@@ -17,8 +17,8 @@ export const ganache = {
   blockExplorers: {
     etherscan: { name: "Ganache", url: "http://127.0.0.1:8545" },
     default: { name: "Ganache", url: "http://127.0.0.1:8545" },
-  }
-} as Chain;
+  },
+} as Chain
 
 export const latestnet = {
   id: 418,
@@ -47,7 +47,7 @@ export const latestnet = {
       blockCreated: 2038385,
     },
   },
-} as Chain;
+} as Chain
 
 export const _goerli = {
   id: 5,
@@ -60,8 +60,16 @@ export const _goerli = {
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["https://light-patient-arm.ethereum-goerli.quiknode.pro/29bc0cd457096a5952d824bcb9186a59c3b07e98/"] },
-    default: { http: ["https://light-patient-arm.ethereum-goerli.quiknode.pro/29bc0cd457096a5952d824bcb9186a59c3b07e98/"] },
+    public: {
+      http: [
+        "https://light-patient-arm.ethereum-goerli.quiknode.pro/29bc0cd457096a5952d824bcb9186a59c3b07e98/",
+      ],
+    },
+    default: {
+      http: [
+        "https://light-patient-arm.ethereum-goerli.quiknode.pro/29bc0cd457096a5952d824bcb9186a59c3b07e98/",
+      ],
+    },
   },
   blockExplorers: {
     etherscan: {
@@ -75,5 +83,4 @@ export const _goerli = {
       address: "0xcA11bde05977b3631167028862bE2a173976CA11",
     },
   },
-} as Chain;
-
+} as Chain

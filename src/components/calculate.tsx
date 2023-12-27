@@ -1,19 +1,14 @@
-import type { NextPage } from "next"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect, useState } from "react"
-import { Token } from "@uniswap/sdk-core"
-import { MEDIA_TOKEN, USDC_TOKEN, WETH_TOKEN } from "@utils/constants"
+import { ETH_TOKEN, MEDIA_TOKEN, USDC_TOKEN, WETH_TOKEN, UNI_TOKEN } from "@utils/constants"
 import LoadingButton from "@components/LoadingButton"
 const { parseUnits, formatUnits } = require("viem")
 
-export default function Calculate({required, selectedAmount, setSelectedAmount}: any) {
-  const UNI_TOKEN = new Token(
-    1,
-    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
-    18,
-    "UNI",
-    "Uniswap"
-  )
+export default function Calculate({calcProps}: any) {
+
+  const {required, selectedAmount, setSelectedAmount, inputToken, setInputToken} = calcProps
+
+
 
   const wc = useWalletContext()
 
@@ -40,11 +35,11 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
   }
 
   const [output, setOutput] = useState(initialState)
-  const [inputToken, setInputToken] = useState(UNI_TOKEN)
   const [liquidity, setLiquidity] = useState(
     formatUnits(required, 18)
   )
   const [requiredAmounts, setRequiredAmounts] = useState(initialRequiredAmounts)
+  const [slippage, setSlippage] = useState(0.50)
 
   useEffect(() => {
     setSelectedAmount("0")
@@ -57,6 +52,9 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
       case "WETH":
         setInputToken(WETH_TOKEN(wc.currentChain))
         break
+      case "ETH":
+        setInputToken(ETH_TOKEN(wc.currentChain))
+        break
       case "USDC":
         setInputToken(USDC_TOKEN(wc.currentChain))
         break
@@ -64,7 +62,7 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
         setInputToken(MEDIA_TOKEN(wc.currentChain));
         break; */
       case "UNI":
-        setInputToken(UNI_TOKEN)
+        setInputToken(UNI_TOKEN(wc.currentChain))
         break
     }
   }
@@ -80,10 +78,6 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
       MEDIA_TOKEN(wc.currentChain),
       WETH_TOKEN(wc.currentChain)
     )
-    let required0Half = await getQuote(token0, amount0, inputToken)
-    let required1Half = await getQuote(token1, amount1, inputToken)
-
-    setSelectedAmount((required0Half.quote + required1Half.quote).toString())
 
     setRequiredAmounts({
       amount0: formatUnits(amount0.toString(), token0.decimals),
@@ -91,6 +85,17 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
       token0: token0.symbol,
       token1: token1.symbol,
     })
+
+    let required0Half = await getQuote(token0, amount0, inputToken)
+    let required1Half = await getQuote(token1, amount1, inputToken)
+    let required = required0Half.quote + required1Half.quote;
+
+    if(required) {
+      setSelectedAmount(formatUnits(
+        required + required * BigInt(slippage * 1000) / BigInt(10000), 
+        inputToken.decimals
+      ))
+    }
   }
   let route =
     wc.quoter && output && wc.quoter.fancyRoute(output.path, output.fees)
@@ -106,54 +111,64 @@ export default function Calculate({required, selectedAmount, setSelectedAmount}:
           /> 
           <span> MEDIA LP</span>
         </div>
-        <div>
-          <input
-            type="text"
-            value={requiredAmounts.amount0}
-            className="field"
-          />
-          <span> {requiredAmounts.token0}</span>
+        <div className="flex gap-3 items-center">
+          <span> = </span>
+          <div className="space-y-2">
+            <div>
+              <input
+                type="text"
+                value={requiredAmounts.amount0}
+                className="field"
+                disabled
+              />
+              <span> {requiredAmounts.token0}</span>
+            </div>
+            <div>
+              <input
+                type="text"
+                value={requiredAmounts.amount1}
+                className="field"
+                disabled
+              />
+              <span> {requiredAmounts.token1}</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <input
-            type="text"
-            value={requiredAmounts.amount1}
-            className="field"
-          />
-          <span> {requiredAmounts.token1}</span>
-        </div>
-        <div className="border-t border-dark-1500 pt-2">
-          <input
-            type="text"
-            value={formatUnits(selectedAmount, inputToken.decimals)}
-            className="field mr-2 w-40"
-            onChange={(e) => setSelectedAmount(e.target.value)}
-          />
-          
-{/*         <input
-          type="text"
-          className="field w-40"
-          value={inputAmount}
-          onChange={(e) => setInputAmount(e.target.value)}
-        /> */}
+
+      </div>
+      <input 
+        type="number"
+        className="field w-24 ml-2"
+        value={slippage}
+        onChange={(e) => setSlippage(Number(e.target.value))}
+      /> % Slippage
+      <hr className="border-dark-1500 my-6" />
+      <LoadingButton
+        className="btn"
+        onClick={() => calculate(liquidity)}
+      >
+        Calculate required
+      </LoadingButton>
         <select
-          className="field"
+          className="field ml-2"
           onChange={handleChange}
           value={inputToken.symbol}
         >
           <option>USDC</option>
           <option>UNI</option>
           <option>WETH</option>
+          <option>ETH</option>
         </select>
-        </div>
+      <hr className="border-dark-1500 my-6" />
+      <div>
+        <input
+          type="text"
+          value={selectedAmount}
+          className="field"
+          onChange={(e) => setSelectedAmount(e.target.value)}
+        /> {inputToken.symbol}
       </div>
       <hr className="border-dark-1500 my-6" />
-      <LoadingButton
-        className="btn w-28"
-        onClick={() => calculate(liquidity)}
-      >
-        Calculate
-      </LoadingButton>
     </>
   )
 }

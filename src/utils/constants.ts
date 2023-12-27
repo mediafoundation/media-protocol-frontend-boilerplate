@@ -1,40 +1,37 @@
-import { Token, WETH9 } from "@uniswap/sdk-core";
-import { Addresses } from "../../../media-sdk";
+import { Token } from "@uniswap/sdk-core"
+//@ts-ignore
+import { Addresses } from 'media-sdk';
+/* import { Addresses } from "../../../media-sdk" */
+const Tokens = Addresses as any
 
-export const WETH_TOKEN = (chainId: number) => {
-  if(chainId == 84531) {
-    return new Token(
-      chainId,
-      Addresses.WETH9["84531"],
-      18,
-      "WETH",
-      "Wrapped Ether"
-    )
-  } else {
-    return WETH9[chainId];
-  }
+export const ETH_TOKEN = (chainId: number = 5) => {
+  return new Token(chainId, Tokens.WETH9[chainId], 18, "ETH", "Native Ether")
 }
 
-export function MEDIA_TOKEN(chainId: string = "5") {
+export const WETH_TOKEN = (chainId: number = 5) => {
+  return new Token(chainId, Tokens.WETH9[chainId], 18, "WETH", "Wrapped Ether")
+}
 
-  let address = Addresses.MediaERC20[chainId as keyof typeof Addresses.MediaERC20 || "5"];
+export const MEDIA_TOKEN = (chainId: number = 5) => {
   return new Token(
-    Number(chainId),
-    address,
+    chainId,
+    Tokens.MediaERC20[chainId],
     18,
     "MEDIA",
     "Media Token"
   )
-};
+}
 
-export function USDC_TOKEN(chainId: string = "5") {
+export const USDC_TOKEN = (chainId: number = 5) => {
+  return new Token(chainId, Tokens.USDC[chainId], 6, "USDC", "USD//C")
+}
 
-  let address = Addresses.USDC[chainId as keyof typeof Addresses.USDC || "5"];
+export const UNI_TOKEN = (chainId: number = 5) => {
   return new Token(
-    Number(chainId),
-    address,
-    6,
-    "USDC",
-    "USD//C"
+    chainId,
+    "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984",
+    18,
+    "UNI",
+    "Uniswap"
   )
-};
+}
