@@ -29,13 +29,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 5. Initialize Media Network marketplace with ID “1”.
 
-![](statamic://asset::assets::initialize.png)
+![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/initialize.png)
 
 6. Create a new resource in “My Resources” by entering metadata like: 
 
 `{"label":"My Website","protocol":"http","origin":"157.240.214.35:80","path":"/"}`
 
-![](statamic://asset::assets::client.png)
+![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/client.png)
 
 7. Sign transactions as prompted to get encryption key and create resources.
 
@@ -59,13 +59,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 `{"label":"Basic","bandwidthLimit":{"amount":1,"unit":"tb","period":"hourly"},"autoSsl":true,"burstSpeed":10000,"nodeLocations":["AR","BR","CL"],"customCnames":true,"apiEndpoint":"https://api.yourdomain.com"}`
 
-![](statamic://asset::assets::provider.png)
+![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/provider.png)
 
 7. Clone and run Media Edge on multiple servers as per the README: [Media Edge Repo](https://github.com/mediafoundation/media-edge)
 
 8. Monitor your deals under "Deal as Provider”.
 
-![](statamic://asset::assets::deals.png)
+![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/deals.png)
 
 
 ## Learn More
