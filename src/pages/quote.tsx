@@ -2,7 +2,12 @@ import type { NextPage } from "next"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect, useState } from "react"
 import { Token } from "@uniswap/sdk-core"
-import { MEDIA_TOKEN, UNI_TOKEN, USDC_TOKEN, WETH_TOKEN } from "@utils/constants"
+import {
+  MEDIA_TOKEN,
+  UNI_TOKEN,
+  USDC_TOKEN,
+  WETH_TOKEN,
+} from "@utils/constants"
 import LoadingButton from "@components/LoadingButton"
 const { parseUnits, formatUnits } = require("viem")
 
@@ -16,8 +21,6 @@ export function getStaticProps() {
 }
 
 const Quote: NextPage = () => {
-
-
   const wc = useWalletContext()
 
   let chainId = wc.currentChain || 5
@@ -33,8 +36,6 @@ const Quote: NextPage = () => {
       wc.fetchOffers()
     }
   }, [wc.marketplaceId])
-
-
 
   const initialState = { quote: 0, fee: 0, route: "", path: [], fees: [] }
   const initialRequiredAmounts = {
@@ -81,24 +82,15 @@ const Quote: NextPage = () => {
     return best
   }
 
-  async function calculate(liquidity: any) {
-    let { token0, token1, amount0, amount1 } = await wc.quoter.mintAmounts(
+  async function calculate() {
+    const { requiredAmounts, totalRequired } = await wc.quoter.calculate(
       parseUnits(liquidity, 18).toString(),
-      MEDIA_TOKEN(chainId),
-      WETH_TOKEN(chainId)
+      inputToken
     )
-    let required0Half = await getQuote(token0, amount0, inputToken)
-    let required1Half = await getQuote(token1, amount1, inputToken)
-
-    setTotalRequired(required0Half.quote + required1Half.quote)
-
-    setRequiredAmounts({
-      amount0: formatUnits(amount0.toString(), token0.decimals),
-      amount1: formatUnits(amount1.toString(), token1.decimals),
-      token0: token0.symbol,
-      token1: token1.symbol,
-    })
+    setTotalRequired(totalRequired)
+    setRequiredAmounts(requiredAmounts)
   }
+
   console.log(wc.quoter)
   let route =
     wc.quoter && output && wc.quoter.fancyRoute(output.path, output.fees)
@@ -141,10 +133,7 @@ const Quote: NextPage = () => {
         <div>
           <input
             type="text"
-            value={formatUnits(
-              output.quote,
-              MEDIA_TOKEN(chainId).decimals
-            )}
+            value={formatUnits(output.quote, MEDIA_TOKEN(chainId).decimals)}
             className="field"
           />
           <span> MEDIA</span>
@@ -167,10 +156,7 @@ const Quote: NextPage = () => {
           value={liquidity}
           onChange={(e) => setLiquidity(e.target.value)}
         />
-        <LoadingButton
-          className="btn w-24"
-          onClick={() => calculate(liquidity)}
-        >
+        <LoadingButton className="btn w-24" onClick={() => calculate()}>
           Calculate
         </LoadingButton>
         <div>

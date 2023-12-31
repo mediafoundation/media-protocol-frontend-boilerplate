@@ -1,6 +1,6 @@
 //@ts-ignore
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk';
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk'; */
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk'; */
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk';
 import { useEffect, useState } from "react"
 import { createWalletClient, custom } from "viem"
 
@@ -25,7 +25,6 @@ export function useMediaSDK({
       resourcesContract: null as any,
       provider: null as any,
       quoter: null as any,
-      pool: null as any,
     }
     let currentChain
     if (chain && validChains.hasOwnProperty(chain.id)) {
