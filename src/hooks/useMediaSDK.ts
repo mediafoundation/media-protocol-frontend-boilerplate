@@ -1,6 +1,6 @@
 //@ts-ignore
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk'; */
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk';
+import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk';
+/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk'; */
 import { useEffect, useState } from "react"
 import { createWalletClient, custom } from "viem"
 

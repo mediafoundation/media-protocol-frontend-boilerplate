@@ -105,7 +105,7 @@ const Home: NextPage = () => {
               </form>            
             </li>
             <li>
-              Market Fee Rate: 100 (0.1%) - 10000 (10%)
+              Market Fee Rate: <small>From 100 (0.01%) to 100000 (10%)</small>
               <form onSubmit={setMarketFeeRate}>
                 <input
                   className="field mr-2"
