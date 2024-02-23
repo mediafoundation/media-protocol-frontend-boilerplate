@@ -10,12 +10,27 @@ import { ContextProvider } from "@contexts/Contextor"
 import { WalletProvider } from "@contexts/WalletContext"
 import { RainbowProvider } from "@contexts/RainbowProvider"
 import { DefaultLayout } from "@components/DefaultLayout"
+import { useEffect } from "react"
 
 const providers = [RainbowProvider, WalletProvider]
 
 const inter = Inter({ subsets: ["latin"] })
 
 export default function MyApp({ Component, pageProps }: AppProps) {
+
+  useEffect(() => {
+    let version = "0.1";
+    try {
+      if(localStorage.getItem("version") != version){
+        localStorage.clear();
+        localStorage.setItem("version", version);
+      }
+    } catch (e){
+      localStorage.clear();
+      localStorage.setItem("version", version);
+    }
+  }, []);
+  
   return (
     <ThemeProvider enableSystem={true} attribute="class">
       <Head>
