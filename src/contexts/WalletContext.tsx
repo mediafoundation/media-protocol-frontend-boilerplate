@@ -81,15 +81,15 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     getMarketplaceData: async () => {
       //const result: any = await resources.view("getResources", [address]);
-      const marketFeeTo: any = await sdk.marketplace.view("getMarketFeeTo", [
+      const marketFeeTo: any = await sdk.marketplace.view("marketFeeTo", [
         state.marketplaceId,
       ])
       const marketFeeRate: any = await sdk.marketplace.view(
-        "getMarketFeeRate",
+        "marketFeeRate",
         [state.marketplaceId]
       )
       const requiredStake: any = await sdk.marketplace.view(
-        "getRequiredStake",
+        "REQUIRED_STAKE",
         [state.marketplaceId]
       )
       const dealCount: any = await sdk.marketplace.view("dealAutoIncrement", [

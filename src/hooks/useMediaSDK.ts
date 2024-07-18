@@ -1,8 +1,7 @@
-//@ts-ignore
-import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from 'media-sdk';
-/* import { initSdk, config, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, Quoter, validChains } from '../../../media-sdk'; */
+import { Sdk, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, validChains, ERC20, Quoter } from 'media-sdk';
 import { useEffect, useState } from "react"
 import { createWalletClient, custom } from "viem"
+import { sepolia } from 'wagmi/chains';
 
 export function useMediaSDK({
   address,
@@ -16,6 +15,8 @@ export function useMediaSDK({
   const [data, setData] = useState(null as any)
 
   useEffect(() => {
+    let sdkInstance;
+
     let output = {
       walletClient: null as any,
       publicClient: null as any,
@@ -25,13 +26,19 @@ export function useMediaSDK({
       resourcesContract: null as any,
       provider: null as any,
       quoter: null as any,
+      erc20: null as any,
     }
     let currentChain
+    console.log("chain",chain)
+    console.log("validChains",validChains)
     if (chain && validChains.hasOwnProperty(chain.id)) {
       currentChain = chain
+      console.log("hay chain")
     } else {
-      console.log("invalid chain")
+      currentChain = sepolia
+      console.log("no hay chain")
     }
+    console.log("currentChain", currentChain)
 
     if (isConnected) {
       output.provider = window.ethereum as any
@@ -44,19 +51,20 @@ export function useMediaSDK({
 
       output.walletClient = walletClient
 
-      initSdk({
+      sdkInstance = new Sdk({
         walletClient: walletClient as any,
       })
     } else {
-      initSdk()
+      sdkInstance = new Sdk({chain: currentChain})
     }
 
-    output.publicClient = config().publicClient
-    output.marketplace = new Marketplace()
-    output.marketplaceViewer = new MarketplaceViewer()
-    output.marketplaceHelper = new MarketplaceHelper()
-    output.resourcesContract = new Resources()
-    output.quoter = new Quoter()
+    output.publicClient = sdkInstance.config.publicClient
+    output.marketplace = new Marketplace(sdkInstance)
+    output.marketplaceViewer = new MarketplaceViewer(sdkInstance)
+    output.marketplaceHelper = new MarketplaceHelper(sdkInstance)
+    output.resourcesContract = new Resources(sdkInstance)
+    output.quoter = new Quoter(sdkInstance)
+    output.erc20 = new ERC20(sdkInstance)
 
     setData(output)
     // eslint-disable-next-line react-hooks/exhaustive-deps
