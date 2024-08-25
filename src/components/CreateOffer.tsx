@@ -1,13 +1,18 @@
+import { useRef } from "react"
 import { useWalletContext } from "@contexts/WalletContext"
+import LoadingButton from "./LoadingButton" // Import the LoadingButton component
 
 export default function CreateOffer() {
   const wc = useWalletContext()
+  const formRef = useRef<HTMLFormElement>(null) // Create a ref for the form
 
-  const handleSubmit = async (event: any) => {
-    event.preventDefault()
-    const data = new FormData(event.target)
+  const handleSubmit = async () => {
+    const form = formRef.current;
+    if (!form) return;
 
-    const tx: any = await wc.createOffer(
+    const data = new FormData(form)
+
+    await wc.createOffer(
       data.get("maximumDeals"),
       data.get("autoAccept") === "on" ? true : false,
       data.get("pricePerSecond"),
@@ -16,10 +21,10 @@ export default function CreateOffer() {
       data.get("singlePeriodOnly") === "on" ? true : false,
       data.get("metadata")
     )
-    console.log(tx)
   }
+
   return (
-    <form onSubmit={handleSubmit}>
+    <form ref={formRef}>
       <fieldset className="rounded-lg border border-dark-1500 p-4 mb-4 [&_>div]:flex [&_>div]:gap-3 [&_>div]:items-center [&_>div]:min-h-[3rem] [&_>div>label]:block [&_>div>label]:min-w-[10rem]">
         <div>
           <label htmlFor="maximumDeals">Maximum Deals</label>
@@ -83,9 +88,17 @@ export default function CreateOffer() {
           />
         </div>
         <div className="border-t border-dark-1500 mt-5 pt-5">
-          <button type="submit" className="btn">
+          <LoadingButton 
+            type="submit" 
+            className="btn" 
+            onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              await handleSubmit();
+              await wc.fetchOffers();
+            }}
+          >
             Create Offer
-          </button>
+          </LoadingButton>
         </div>
       </fieldset>
     </form>

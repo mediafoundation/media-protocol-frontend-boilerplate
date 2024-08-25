@@ -3,6 +3,7 @@ import { useAccount } from "wagmi"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect } from "react"
 import Deals from "@components/Deals"
+import LoadingButton from "@components/LoadingButton"
 
 declare global {
   interface BigInt {
@@ -46,15 +47,12 @@ const Home: NextPage = () => {
             <>
               <div>
                 <div className="flex gap-2">
-                  <button onClick={wc.fetchProviderDeals} className="btn">
+                  <LoadingButton onClick={wc.fetchProviderDeals} className="btn">
                     Reload
-                  </button>
-                  <button
-                    onClick={() => wc.resetProviderDeals()}
-                    className="btn"
-                  >
+                  </LoadingButton>
+                  <LoadingButton onClick={wc.resetProviderDeals} className="btn">
                     Reset
-                  </button>
+                  </LoadingButton>
                 </div>
                 <Deals items={wc.providerDeals} />
               </div>

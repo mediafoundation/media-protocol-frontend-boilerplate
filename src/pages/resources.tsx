@@ -6,6 +6,7 @@ import { useEffect } from "react"
 import { Encryption } from "media-sdk"
 import { getShortName } from "@utils/utils"
 import CreateResource from "@components/CreateResource"
+import LoadingButton from "@components/LoadingButton"
 
 declare global {
   interface BigInt {
@@ -48,91 +49,90 @@ const Home: NextPage = () => {
       {isConnected && (
         <div>
           <div className="flex gap-2">
-            <button onClick={wc.fetchResources} className="btn">
+            <LoadingButton onClick={wc.fetchResources} className="btn">
               Reload
-            </button>
-            <button onClick={wc.resetResources} className="btn">
+            </LoadingButton>
+            <LoadingButton onClick={wc.resetResources} className="btn">
               Reset
-            </button>
+            </LoadingButton>
           </div>
-          {wc.resources && wc.resources.length > 0 ? (
+          {wc.resources && wc.resources.length > 0 ? <ul>{
             wc.resources.map((res: any, i: number) => {
+              if(res.owner !== address) return null
               return (
-                <ul key={i}>
-                  <li className="border border-dark-1500 rounded-xl px-6 py-4 my-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xl leading-9">
-                        <span className="text-dark-300">ID:</span>{" "}
-                        {String(res.id)}{" "}
-                        <span className="text-dark-700">&middot;</span>{" "}
-                        <span className="text-dark-300">Owner:</span>{" "}
-                        {address == res.owner
-                          ? "You"
-                          : getShortName(res.owner, true, 6)}
-                      </span>
-                      <div className="flex gap-2">
-                        {!wc.decryptedResources[res.id] && (
-                          <button
-                            onClick={async () => {
-                              const decryptedKey = await wc.provider.request({
-                                method: "eth_decrypt",
-                                params: [res.encryptedSharedKey, address],
-                              })
-                              let attrs = JSON.parse(res.encryptedData)
-                              let decryptedData = await Encryption.decrypt(
-                                decryptedKey,
-                                attrs.iv,
-                                attrs.tag,
-                                attrs.encryptedData
-                              )
-                              let data = JSON.parse(decryptedData)
-                              wc.setDecryptedResources({
-                                ...wc.decryptedResources,
-                                [res.id]: data,
-                              })
-                            }}
-                            className="btn !m-0"
-                          >
-                            Decrypt
-                          </button>
-                        )}
+                <li key={i} className="border border-dark-1500 rounded-xl px-6 py-4 my-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xl leading-9">
+                      <span className="text-dark-300">ID:</span>{" "}
+                      {String(res.id)}{" "}
+                      <span className="text-dark-700">&middot;</span>{" "}
+                      <span className="text-dark-300">Owner:</span>{" "}
+                      {address == res.owner
+                        ? "You"
+                        : getShortName(res.owner, true, 6)}
+                    </span>
+                    <div className="flex gap-2">
+                      {!wc.decryptedResources[res.id] && (
                         <button
-                          className="btn !m-0"
                           onClick={async () => {
-                            const hash =
-                              await wc.resourcesContract.removeResource({
-                                id: res.id,
-                                ownerKeys: "",
-                              })
-                            const transaction =
-                              await wc.publicClient.waitForTransactionReceipt({
-                                hash: hash,
-                              })
-                            console.log(transaction)
-                            wc.fetchResources()
+                            const decryptedKey = await wc.provider.request({
+                              method: "eth_decrypt",
+                              params: [res.encryptedSharedKey, address],
+                            })
+                            let attrs = JSON.parse(res.encryptedData)
+                            let decryptedData = await Encryption.decrypt(
+                              decryptedKey,
+                              attrs.iv,
+                              attrs.tag,
+                              attrs.encryptedData
+                            )
+                            let data = JSON.parse(decryptedData)
+                            wc.setDecryptedResources({
+                              ...wc.decryptedResources,
+                              [res.id]: data,
+                            })
                           }}
+                          className="btn !m-0"
                         >
-                          Delete
+                          Decrypt
                         </button>
-                      </div>
+                      )}
+                      <button
+                        className="btn !m-0"
+                        onClick={async () => {
+                          const hash =
+                            await wc.resourcesContract.removeResource({
+                              id: res.id,
+                              ownerKeys: "",
+                            })
+                          const transaction =
+                            await wc.publicClient.waitForTransactionReceipt({
+                              hash: hash,
+                            })
+                          console.log(transaction)
+                          wc.fetchResources()
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
+                  </div>
 
-                    {wc.decryptedResources[res.id] && (
-                      <ul className="border-t border-t-dark-1500 mt-2 pt-2">
-                        {Object.entries(wc.decryptedResources[res.id]).map(
-                          ([key, value]) => (
-                            <li key={key}>
-                              {key}: {JSON.stringify(value)}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    )}
-                  </li>
-                </ul>
+                  {wc.decryptedResources[res.id] && (
+                    <ul className="border-t border-t-dark-1500 mt-2 pt-2">
+                      {Object.entries(wc.decryptedResources[res.id]).map(
+                        ([key, value]) => (
+                          <li key={key}>
+                            {key}: {JSON.stringify(value)}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  )}
+                </li>
               )
             })
-          ) : (
+          }</ul> : (
             <p>No resources found</p>
           )}
           <hr className="border-dark-1500 mb-6" />

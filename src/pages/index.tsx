@@ -1,6 +1,8 @@
 import type { NextPage } from "next"
 import { useAccount } from "wagmi"
 import { useWalletContext } from "@contexts/WalletContext"
+import LoadingButton from "@components/LoadingButton"
+import { useRef } from "react"
 
 export function getStaticProps() {
   return {
@@ -21,40 +23,43 @@ const Home: NextPage = () => {
     wc.setMarketplaceId(BigInt(result))
   }
 
-  const setRequiredStake = async (event: any) => {
-    event.preventDefault()
-    if(!isConnected) return false
-    const data = new FormData(event.target)
+  const requiredStakeForm = useRef<HTMLFormElement>(null)
 
-    const tx: any = await wc.marketplace.execute("setRequiredStake", [
+  const setRequiredStake = async () => {
+    const form = requiredStakeForm.current;
+    if (!form || !isConnected) return;
+    const data = new FormData(form)
+
+    await wc.marketplace.execute("setRequiredStake", [
       wc.marketplaceId,
       data.get("requiredStake"),
     ])
-    console.log(tx)
   }
 
-  const setMarketFeeRate = async (event: any) => {
-    event.preventDefault()
-    if(!isConnected) return false
-    const data = new FormData(event.target)
+  const marketFeeRateForm = useRef<HTMLFormElement>(null)
 
-    const tx: any = await wc.marketplace.execute("setMarketFeeRate", [
+  const setMarketFeeRate = async () => {
+    const form = marketFeeRateForm.current;
+    if (!form || !isConnected) return;
+    const data = new FormData(form)
+    
+    await wc.marketplace.execute("setMarketFeeRate", [
       wc.marketplaceId,
       data.get("marketFeeRate"),
     ])
-    console.log(tx)
   }
 
-  const setMarketFeeTo = async (event: any) => {
-    event.preventDefault()
-    if(!isConnected) return false
-    const data = new FormData(event.target)
+  const marketFeeToForm = useRef<HTMLFormElement>(null)
 
-    const tx: any = await wc.marketplace.execute("setMarketFeeTo", [
+  const setMarketFeeTo = async () => {
+    const form = marketFeeToForm.current;
+    if (!form || !isConnected) return;
+    const data = new FormData(form)
+    
+    await wc.marketplace.execute("setMarketFeeTo", [
       wc.marketplaceId,
       data.get("marketFeeTo"),
     ])
-    console.log(tx)
   }
 
   return (
@@ -68,9 +73,9 @@ const Home: NextPage = () => {
       <h1>Select a Marketplace</h1>
       <div className="flex gap-2 my-4">
         {isConnected && (
-          <button className="btn" onClick={wc.initMarket}>
+          <LoadingButton className="btn" onClick={wc.initMarket}>
             Init New Marketplace
-          </button>
+          </LoadingButton>
         )}
         <div className="flex gap-2 items-center">
           or choose ID
@@ -88,7 +93,7 @@ const Home: NextPage = () => {
           <ul className="divide-y divide-dark-1500 [&_li]:py-3 ">
             <li>Market ID: {String(wc.marketplaceId)}</li>
             <li>Market Fee To:
-              <form onSubmit={setMarketFeeTo}>
+              <form ref={marketFeeToForm}>
                 <input
                   className="field mr-2"
                   type="text"
@@ -101,12 +106,23 @@ const Home: NextPage = () => {
                     })
                   }}
                 />
-                {isConnected && address == wc.marketplaceData.owner && (<><input type="submit" className="btn" /></>)}
+                {isConnected && address == wc.marketplaceData.owner && (<>
+                  <LoadingButton 
+                    type="submit" 
+                    className="btn" 
+                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault();
+                      await setMarketFeeTo();
+                    }}
+                  >
+                    Submit
+                  </LoadingButton>
+                </>)}
               </form>            
             </li>
             <li>
               Market Fee Rate: <small>From 100 (0.01%) to 100000 (10%)</small>
-              <form onSubmit={setMarketFeeRate}>
+              <form ref={marketFeeRateForm}>
                 <input
                   className="field mr-2"
                   type="text"
@@ -119,12 +135,23 @@ const Home: NextPage = () => {
                     })
                   }}
                 />
-                {isConnected && address == wc.marketplaceData.owner && (<><input type="submit" className="btn" /></>)}
+                {isConnected && address == wc.marketplaceData.owner && (<>
+                  <LoadingButton 
+                    type="submit" 
+                    className="btn" 
+                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault();
+                      await setMarketFeeRate();
+                    }}
+                  >
+                    Submit
+                  </LoadingButton>
+                </>)}
               </form>
             </li>
             <li>
               Required Stake:{" "}
-              <form onSubmit={setRequiredStake}>
+              <form ref={requiredStakeForm}>
                 <input
                   className="field mr-2"
                   name="requiredStake"
@@ -137,7 +164,18 @@ const Home: NextPage = () => {
                     })
                   }}
                 />
-                {isConnected && address == wc.marketplaceData.owner && (<><input type="submit" className="btn" /></>)}
+                {isConnected && address == wc.marketplaceData.owner && (<>
+                  <LoadingButton 
+                    type="submit" 
+                    className="btn" 
+                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault();
+                      await setRequiredStake();
+                    }}
+                  >
+                    Submit
+                  </LoadingButton>
+                </>)}
               </form>
             </li>
             <li>Deal Count: {String(wc.marketplaceData.dealCount)}</li>
@@ -148,12 +186,12 @@ const Home: NextPage = () => {
       <hr className="border-dark-1500 my-6" />
       {wc.marketplaceId && (
         <div className="flex gap-2">
-          <button onClick={wc.getMarketplaceData} className="btn">
+          <LoadingButton onClick={wc.getMarketplaceData} className="btn">
             Reload
-          </button>
-          <button onClick={() => wc.resetMarketplaceData()} className="btn">
+          </LoadingButton>
+          <LoadingButton onClick={wc.resetMarketplaceData} className="btn">
             Reset
-          </button>
+          </LoadingButton>
         </div>
       )}
     </>

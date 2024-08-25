@@ -3,6 +3,7 @@ import { useAccount } from "wagmi"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect } from "react"
 import Deals from "@components/Deals"
+import LoadingButton from "@components/LoadingButton"
 
 const Home: NextPage = () => {
   const { address, isConnected } = useAccount()
@@ -37,12 +38,12 @@ const Home: NextPage = () => {
             <>
               <div>
                 <div className="flex gap-2">
-                  <button onClick={wc.fetchClientDeals} className="btn">
+                  <LoadingButton onClick={wc.fetchClientDeals} className="btn">
                     Reload
-                  </button>
-                  <button onClick={() => wc.resetClientDeals()} className="btn">
+                  </LoadingButton>
+                  <LoadingButton onClick={wc.resetClientDeals} className="btn">
                     Reset
-                  </button>
+                  </LoadingButton>
                 </div>
                 <Deals items={wc.clientDeals} />
               </div>

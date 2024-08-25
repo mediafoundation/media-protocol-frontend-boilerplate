@@ -1,17 +1,21 @@
+import { useRef } from "react"
 import { useWalletContext } from "@contexts/WalletContext"
+import LoadingButton from "./LoadingButton"
 
 export default function CreateResource() {
   const wc = useWalletContext()
+  const formRef = useRef<HTMLFormElement>(null) // Create a ref for the form
 
-  const handleSubmit = async (event: any) => {
-    event.preventDefault()
-    const data = new FormData(event.target)
+  const handleSubmit = async () => {
+    const form = formRef.current;
+    if (!form) return;
 
-    const tx: any = await wc.addResource(data.get("metadata"))
-    console.log(tx)
+    const data = new FormData(form)
+
+    await wc.addResource(data.get("metadata"))
   }
   return (
-    <form onSubmit={handleSubmit}>
+    <form ref={formRef}>
       <h1>Create Resource</h1>
       <fieldset className="rounded-lg border border-dark-1500 p-4">
         <textarea
@@ -22,16 +26,27 @@ export default function CreateResource() {
         />
         <br />
         {!wc.encryptionPublicKey ? (
-          <button
-            onClick={wc.getEncryptionPublicKey}
-            className="btn"
+          <LoadingButton 
+            type="submit" 
+            className="btn" 
+            onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              await wc.getEncryptionPublicKey();
+            }}
           >
             #1 - Get Encryption Key
-          </button>
+          </LoadingButton>
         ) : (
-          <button type="submit" className="btn">
+          <LoadingButton 
+            type="submit" 
+            className="btn" 
+            onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+              event.preventDefault();
+              await handleSubmit();
+            }}
+          >
             Create Resource
-          </button>
+          </LoadingButton>
         )}
 
       </fieldset>
