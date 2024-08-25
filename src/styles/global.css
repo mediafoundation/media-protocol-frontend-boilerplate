@@ -43,3 +43,7 @@ main a {
 .menu-item.not-active {
   @apply text-dark-300 hover:text-dark-50 hover:bg-dark-1700;
 }
+
+.btn:disabled {
+  @apply cursor-not-allowed opacity-50;
+}

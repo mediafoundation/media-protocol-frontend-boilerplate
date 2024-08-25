@@ -4,9 +4,11 @@ import { Address, useAccount, useNetwork } from "wagmi"
 import { useMediaSDK } from "@hooks/useMediaSDK"
 
 //@ts-ignore
-import { Encryption } from "media-sdk"
+import { Encryption, Uniswap } from "media-sdk"
 /* import { Encryption } from '../../../media-sdk'; */
 import { parseUnits } from "viem"
+import { MEDIA_TOKEN, PATHS, WETH_TOKEN } from "@utils/constants"
+import { Token } from "@uniswap/sdk-core"
 
 const initialState = {
   offers: [],
@@ -150,30 +152,61 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       dispatchers.setEncryptionPublicKey(_encryptionPublicKey)
     },
 
-    registerProvider: async ({ label, inputToken, inputAmount }: any) => {
+    registerProvider: async ({ metadata, inputToken, inputAmount }: any) => {
+      inputAmount = parseUnits(inputAmount, inputToken.decimals)
       let hash
       if (inputToken.symbol == "ETH") {
-        hash = await sdk.marketplaceHelper.addLiquidityAndRegisterWithETH({
-          marketplaceId: state.marketplaceId,
-          label,
-          publicKey: state.encryptionPublicKey,
-          minMediaAmountOut: 0,
-          slippage: 5000,
-          amount: parseUnits(inputAmount, inputToken.decimals),
-        })
+        hash = await sdk.marketplaceHelper.execute("addLiquidityAndRegisterWithETH",[
+          state.marketplaceId,
+          metadata,
+          state.encryptionPublicKey,
+          0,
+          PATHS(state.currentChain).wethToMedia,
+          50000, //slippage (50000 = 5%)
+          500, // media-weth poolfee
+        ], inputAmount);
       } else {
-        hash = await sdk.marketplaceHelper.addLiquidityAndRegister({
-          marketplaceId: state.marketplaceId,
-          inputToken: inputToken.address,
-          inputAmount: parseUnits(inputAmount, inputToken.decimals),
-          label,
-          publicKey: state.encryptionPublicKey,
-          slippage: 5000,
-        })
+
+        let quote = await sdk.quoter.getQuote(
+          inputToken,
+          inputAmount / BigInt(2),
+          WETH_TOKEN(state.currentChain)
+        );
+        let quote2 = await sdk.quoter.getQuote(
+          inputToken,
+          inputAmount / BigInt(2),
+          MEDIA_TOKEN(state.currentChain)
+        );
+        let path = quote.path.map((token: Token) => {
+          return token.address;
+        });
+        let path2 = quote2.path.map((token: Token) => {
+          return token.address;
+        });
+        console.log("quote: ", quote, "quote2: ", quote2, "path: ", path, "path2: ", path2);
+        let inputToWethPath = inputToken.address == WETH_TOKEN(state.currentChain).address ? PATHS(state.currentChain).wethToMedia : Uniswap.encodePath(path, quote.fees);
+        let inputToMediaPath = inputToken.address == MEDIA_TOKEN(state.currentChain).address ? PATHS(state.currentChain).wethToMedia : Uniswap.encodePath(path2, quote2.fees);
+
+        hash = await sdk.marketplaceHelper.execute("addLiquidityAndRegister",[
+          1,
+          inputToken.address,
+          inputAmount,
+          metadata,
+          state.encryptionPublicKey,
+          [
+            quote.quote - (quote.quote * BigInt(5)) / BigInt(1000),
+            quote2.quote - (quote2.quote * BigInt(5)) / BigInt(1000),
+          ],
+          [inputToWethPath, inputToMediaPath],
+          50000, //slippage (50000 = 5%)
+          500, // media-weth poolfee
+        ]);
+
       }
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
       })
+      functions.getRegistrationStatus(address)
       console.log(transaction)
     },
     unregisterProvider: async () => {
@@ -185,6 +218,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         hash: hash,
       })
       console.log(transaction)
+      functions.getRegistrationStatus(address)
     },
     cancelDeal: async (id: bigint) => {
       const hash = await sdk.marketplace.cancelDeal({

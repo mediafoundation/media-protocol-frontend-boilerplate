@@ -23,7 +23,7 @@ export default function Calculate({ calcProps }: any) {
 
   useEffect(() => {
     if (wc.currentChain) {
-      setInputToken(USDC_TOKEN(wc.currentChain))
+      setInputToken(ETH_TOKEN(wc.currentChain))
     }
   }, [wc.currentChain])
 
@@ -63,9 +63,9 @@ export default function Calculate({ calcProps }: any) {
       case "USDC":
         setInputToken(USDC_TOKEN(wc.currentChain))
         break
-      /*       case "MEDIA":
+      case "MEDIA":
         setInputToken(MEDIA_TOKEN(wc.currentChain));
-        break; */
+        break;
       case "UNI":
         setInputToken(UNI_TOKEN(wc.currentChain))
         break
@@ -94,6 +94,19 @@ export default function Calculate({ calcProps }: any) {
     wc.quoter && output && wc.quoter.fancyRoute(output.path, output.fees)
   return (
     <>
+      Input Token
+      <select
+        className="field mx-2"
+        onChange={handleChange}
+        value={inputToken.symbol}
+      >
+{/*         <option>USDC</option>
+        <option>UNI</option>
+        <option>WETH</option>
+        <option>MEDIA</option> */}
+        <option>ETH</option>
+      </select>
+      <hr className="border-dark-1500 my-6" />
       <div className="[&_>*]:mb-2">
         <div>
           <input
@@ -136,29 +149,22 @@ export default function Calculate({ calcProps }: any) {
       />{" "}
       % Slippage
       <hr className="border-dark-1500 my-6" />
-      <LoadingButton className="btn" onClick={() => calculate()}>
-        Calculate required
+      <LoadingButton className="btn inline-flex items-center gap-2" onClick={() => calculate()}>
+        Calculate required {inputToken.symbol}
       </LoadingButton>
-      <select
-        className="field ml-2"
-        onChange={handleChange}
-        value={inputToken.symbol}
-      >
-        <option>USDC</option>
-        <option>UNI</option>
-        <option>WETH</option>
-        <option>ETH</option>
-      </select>
-      <hr className="border-dark-1500 my-6" />
-      <div>
-        <input
-          type="text"
-          value={selectedAmount}
-          className="field"
-          onChange={(e) => setSelectedAmount(e.target.value)}
-        />{" "}
-        {inputToken.symbol}
-      </div>
+      {selectedAmount !== "0" && (
+      <>
+        <hr className="border-dark-1500 my-6" />
+        <div>
+          <input
+            type="text"
+            value={selectedAmount}
+            className="field"
+            onChange={(e) => setSelectedAmount(e.target.value)}
+          />{" "}
+          {inputToken.symbol}
+        </div>
+      </>)}
       <hr className="border-dark-1500 my-6" />
     </>
   )

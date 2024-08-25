@@ -10,11 +10,15 @@ export default function LoadingButton(props: any) {
       {...rest}
       onClick={async (event) => {
         setIsLoading(true)
-        await props.onClick(event)
+        try{
+          await props.onClick(event)
+        } catch (error) {
+          console.error(error)
+        }
         setIsLoading(false)
       }}
     >
-      {isLoading ? <Loader /> : children}
+      {isLoading ? <><Loader /> {children}</> : children}
     </button>
   )
 }

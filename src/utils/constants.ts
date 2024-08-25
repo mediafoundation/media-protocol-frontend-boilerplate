@@ -1,6 +1,6 @@
 import { Token } from "@uniswap/sdk-core"
 //@ts-ignore
-import { Addresses } from 'media-sdk';
+import { Addresses, Uniswap } from 'media-sdk';
 /* import { Addresses } from "../../../media-sdk" */
 const Tokens = Addresses as any
 
@@ -34,4 +34,15 @@ export const UNI_TOKEN = (chainId: number = 5) => {
     "UNI",
     "Uniswap"
   )
+}
+
+export const PATHS = (chainId: number = 5) => {
+  return {
+    wethToMedia: Uniswap.encodePath(
+      [
+        WETH_TOKEN(chainId).address, 
+        MEDIA_TOKEN(chainId).address],
+      [500]
+    )
+  }
 }

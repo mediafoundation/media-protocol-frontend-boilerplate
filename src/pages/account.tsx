@@ -4,8 +4,9 @@ import { useEffect, useState } from "react"
 import { useAccount } from "wagmi"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 import Calculate from "@components/calculate"
-import { WETH_TOKEN } from "@utils/constants"
+import { ETH_TOKEN } from "@utils/constants"
 import { Token } from "@uniswap/sdk-core"
+import LoadingButton from "@components/LoadingButton"
 
 declare global {
   interface BigInt {
@@ -23,7 +24,7 @@ const Home: NextPage = () => {
   const wc = useWalletContext()
 
   const [selectedAmount, setSelectedAmount] = useState("0")
-  const [inputToken, setInputToken] = useState<Token>(WETH_TOKEN())
+  const [inputToken, setInputToken] = useState<Token>(ETH_TOKEN())
 
   useEffect(() => {
     if (wc.offers.length == 0 && wc.marketplaceId) {
@@ -33,7 +34,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (wc.currentChain) {
-      setInputToken(WETH_TOKEN(wc.currentChain))
+      setInputToken(ETH_TOKEN(wc.currentChain))
     }
   }, [wc.currentChain])
 
@@ -60,12 +61,12 @@ const Home: NextPage = () => {
                 <hr className="border-dark-1500 my-6" />
                 {wc.isRegisteredProvider ? (
                   <>
-                    <button
+                    <LoadingButton
                       onClick={() => wc.unregisterProvider()}
                       className="btn"
                     >
                       Unregister Provider
-                    </button>
+                    </LoadingButton>
                   </>
                 ) : (
                   <div className="[&_>div]:mb-2">
@@ -95,20 +96,18 @@ const Home: NextPage = () => {
                     <hr className="border-dark-1500 my-6" />
                     <div>
                       <Calculate calcProps={calcProps} />
-                      {wc.encryptionPublicKey && (
-                        <button
-                          onClick={() =>
-                            wc.registerProvider({
-                              label: "Provider Label",
-                              inputToken: inputToken,
-                              inputAmount: selectedAmount,
-                            })
-                          }
-                          className="btn"
-                        >
+                      <LoadingButton 
+                        className="btn"
+                        disabled={!wc.encryptionPublicKey || selectedAmount == "0"}
+                        onClick={() =>
+                          wc.registerProvider({
+                            label: "Provider Label",
+                            inputToken: inputToken,
+                            inputAmount: selectedAmount,
+                          })
+                        }>
                           Register Provider
-                        </button>
-                      )}
+                      </LoadingButton>
                     </div>
                   </div>
                 )}
