@@ -57,7 +57,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
       })
-      dispatchers.setMarketplaceId(BigInt(transaction.logs[0].topics[1]))
+      dispatchers.setMarketplaceId(BigInt(transaction.logs[0].data))
     },
     fetchResources: async () => {
       const result: any = await sdk.resourcesContract.getPaginatedResources({
