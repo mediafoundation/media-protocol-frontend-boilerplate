@@ -310,7 +310,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   }, [chain])
 
   useEffect(() => {
-    if (address && state.marketplaceId) {
+    if (address && state.marketplaceId && state.sdkReady) {
       dispatchers.resetClientDeals()
       dispatchers.resetProviderDeals()
       dispatchers.resetResources()
@@ -321,20 +321,20 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         functions.getRegistrationStatus(address)
       }
     }
-  }, [address])
+  }, [state.sdkReady, address])
 
   useEffect(() => {
     dispatchers.resetMarketplaceData()
     dispatchers.resetOffers()
     dispatchers.resetProviderDeals()
     dispatchers.resetClientDeals()
-    if (state.marketplaceId) {
+    if (state.sdkReady && state.marketplaceId) {
       functions.getMarketplaceData()
       if (address) {
         functions.getRegistrationStatus(address)
       }
     }
-  }, [state.marketplaceId])
+  }, [state.sdkReady, state.marketplaceId])
 
   return (
     <Context.Provider

@@ -1,72 +1,123 @@
 # Media Protocol Frontend Boilerplate
 
+This is a boilerplate for the Media Protocol Frontend SDK. It is a simple web application that demonstrates how to interact with the Media Protocol smart contracts. The boilerplate is built using Next.js and Tailwind CSS.
+
 > ⚠️ **Important Note:** The Media Protocol is not yet live into any mainnet network. It is only available in testnet networks and the contract addresses provided in the SDK are subject to change. Always refer to the official documentation for the most up-to-date and valid contract addresses before any interactions.
 
 Check the demo [here](https://media-protocol-frontend-boilerplate.vercel.app/)
 
 ## Getting Started
 
-First, run the development server:
+To get started with this project, follow these steps:
+
+## Installation
+
+First, clone the repository and navigate into the project directory:
 
 ```bash
+git clone https://github.com/mediafoundation/media-protocol-frontend-boilerplate.git
+cd media-protocol-frontend-boilerplate
+```
+
+Then, install the project dependencies using npm or yarn:
+
+```bash
+# Using npm
+npm install
+
+# Or using yarn
+yarn
+```
+
+## Development
+
+To start the development server, run:
+
+```bash
+# Using npm
 npm run dev
-# or
+
+# Or using yarn
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The server will be running on [http://localhost:3000](http://localhost:3000). Open it in your browser to view the project.
 
+## Build for Production
 
-### Tutorial on Becoming a Client of Marketplace ID 1 (Media Network):
+To create an optimized production build, run:
+
+```bash
+# Using npm
+npm run build
+
+# Or using yarn
+yarn build
+```
+
+This will create a `.next` folder containing the production build. To start the production server:
+
+```bash
+# Using npm
+npm start
+
+# Or using yarn
+yarn start
+```
+
+---
+
+# Tutorials 
+
+Here you can find a step-by-step guide on how to interact with the Media Protocol smart contracts using this boilerplate.
+
+## Prerequisites
+
+Before you start, make sure you have the following:
 
 1. Install [Metamask](https://support.metamask.io/hc/en-us/articles/360015489531) & create a wallet. We recommend using a burner wallet. 
 
-2.  Fund your wallet. Mine GöETH from [Goerli Faucet](https://goerli-faucet.pk910.de/) or [Goerlifaucet.com](https://goerlifaucet.com/) without mining if you have 0.01 ETH balance on the same wallet on Ethereum Mainnet.
+2. Fund your wallet. You can mine Sepolia ETH from the [Sepolia Faucet](https://sepolia-faucet.pk910.de/).
 
-3. Clone and run the boilerplate: [Media Protocol Frontend Boilerplate](https://github.com/mediafoundation/media-protocol-frontend-boilerplate) or use the demo at [Media Protocol Frontend Demo](https://media-protocol-frontend-boilerplate.vercel.app/)
+3. Navigate to your Boilerplate. You can use the demo at [Media Protocol Frontend Demo](https://media-protocol-frontend-boilerplate.vercel.app/) or clone the boilerplate: [Media Protocol Frontend Boilerplate](https://github.com/mediafoundation/media-protocol-frontend-boilerplate)
 
-4. On Metamask, select the Goerli Testnet.
+4. Connect your wallet to the boilerplate by clicking on the “Connect Wallet” button.
 
-5. Initialize Media Network marketplace with ID “1”.
+## Initializing or selecting a Marketplace
+
+Initialize a new marketplace by clicking "Init New Marketplace" and signing the transaction, or select an existing one by writing the marketplace ID on the input field.
 
 ![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/initialize.png)
 
-6. Create a new resource in “My Resources” by entering metadata like: 
+## Becoming a Provider:
+After initializing or selecting a marketplace, you can become a provider by following these steps:
 
-`{"label":"My Website","protocol":"http","origin":"157.240.214.35:80","path":"/"}`
+1. Register as a provider in “My Account” by following the steps
 
-![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/client.png)
-
-7. Sign transactions as prompted to get encryption key and create resources.
-
-8. Take an offer from a provider in “All offers” entering your resource ID created in the step above.
-
-### Steps to Become a Provider:
-
-1. Install [Metamask](https://support.metamask.io/hc/en-us/articles/360015489531) & create a wallet. We recommend using a burner wallet. 
-
-2.  Fund your wallet. Mine GöETH from [Goerli Faucet](https://goerli-faucet.pk910.de/) or [Goerlifaucet.com](https://goerlifaucet.com/) without mining if you have 0.01 ETH balance on the same wallet on Ethereum Mainnet.
-
-3. Clone and run the boilerplate: [Media Protocol Frontend Boilerplate](https://github.com/mediafoundation/media-protocol-frontend-boilerplate) or use the demo at [Media Protocol Frontend Demo](https://media-protocol-frontend-boilerplate.vercel.app/)
-
-4. On Metamask, select the Goerli Testnet.
-
-5. Initialize Media Network marketplace with ID “1”.
-
-5. Register as a provider in “My Account” by staking MEDIA & GöETH as a required.
-
-6. Create a new offer in “All Offers” with the necessary metadata, for example: 
-
-`{"label":"Basic","bandwidthLimit":{"amount":1,"unit":"tb","period":"hourly"},"autoSsl":true,"burstSpeed":10000,"nodeLocations":["AR","BR","CL"],"customCnames":true,"apiEndpoint":"https://api.yourdomain.com"}`
+2. Create a new offer in using the form in “All Offers” 
 
 ![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/provider.png)
 
-7. Clone and run Media Edge on multiple servers as per the README: [Media Edge Repo](https://github.com/mediafoundation/media-edge)
-
-8. Monitor your deals under "Deal as Provider”.
+3. Monitor your deals under "Deal as Provider”.
 
 ![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/deals.png)
 
+
+## Becoming a Client:
+
+In order to become a client you will have to use another wallet, because you cannot aquire services from yourself. You can use the same wallet by creating a new account in Metamask, this will give you a new wallet address.
+
+1. Make sure you transfer some Sepolia ETH to your new wallet.
+
+2. Navigate to the "All Offers" page, and use the "Take Offer" button to take one of the offers we created in the previous step.
+
+3. That's it! You can now monitor your deals under "Deal as Client".
+
+<!-- 6. Create a new resource in “My Resources” by entering metadata like: 
+
+![](https://raw.githubusercontent.com/mediafoundation/media-protocol-frontend-boilerplate/main/public/images/client.png)
+
+x. Sign transactions as prompted to get encryption key and create resources. -->
 
 ## Learn More
 
