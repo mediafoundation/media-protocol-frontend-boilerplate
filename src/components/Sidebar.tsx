@@ -51,9 +51,10 @@ export const Sidebar = () => {
         <div className="flex h-16 shrink-0 items-center pl-2.5">
           <img
             className="h-8 w-auto"
-            src="/images/medianetworkwhite.svg"
+            src="/images/mediaprotocolwhite.svg"
             alt="Media Protocol"
           />
+          <span className="ml-2 text-xl font-semibold">Media Protocol</span>
         </div>
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
