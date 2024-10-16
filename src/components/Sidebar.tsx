@@ -8,6 +8,7 @@ import {
 } from "react-icons/pi"
 import Link from "next/link"
 import { useRouter } from "next/router"
+import { toast } from "sonner"
 
 function classNames(...classes: any) {
   return classes.filter(Boolean).join(" ")
@@ -108,6 +109,22 @@ export const Sidebar = () => {
             </Link>
           </li>
         </ul>
+{/* 
+        <button onClick={() => toast.error('Error')}>
+          Error
+        </button>
+        <button onClick={() => toast.success('Success')}>
+          Success
+        </button>
+        <button onClick={() => toast.warning('Warning')}>
+          Warning
+        </button>
+        <button onClick={() => toast.info('Info')}>
+          Info
+        </button>
+        <button onClick={() => toast('Default')}>
+          Default
+        </button> */}
       </nav>
     </>
   )

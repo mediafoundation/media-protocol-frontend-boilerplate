@@ -6,13 +6,25 @@ import { Sidebar } from "@components/Sidebar"
 import { IoIosClose } from "react-icons/io"
 import { useWalletContext } from "@contexts/WalletContext"
 import Link from "next/link"
+import { Toaster } from "sonner"
 
 export function DefaultLayout({ children, pageProps }: any) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const wc = useWalletContext()
-
+  
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "backdrop-blur-md",
+          classNames: {
+            info: "bg-[hsla(197,100%,47.8%,0.2)] !border-[hsl(197,100%,47.8%)] text-[rgb(220_221_222)]",
+            success: "bg-[hsla(139,47.3%,43.9%,0.2)] !border-[hsl(139,47.3%,43.9%)] text-[rgb(220_221_222)]",
+            error: "bg-[hsla(359,82.6%,59.4%,0.2)] !border-[hsl(359,82.6%,59.4%)] text-[rgb(220_221_222)]",
+            warning: "bg-[hsla(38,95.7%,54.1%,0.2)] !border-[hsl(38,95.7%,54.1%)] text-[rgb(220_221_222)]",
+          },
+        }}
+      />
       <Transition.Root show={sidebarOpen} as={Fragment}>
         <Dialog
           as="div"

@@ -30,7 +30,7 @@ const Home: NextPage = () => {
     if (!form || !isConnected) return;
     const data = new FormData(form)
 
-    await wc.marketplace.execute("setRequiredStake", [
+    await wc.marketplaceStorage.execute("setRequiredStake", [
       wc.marketplaceId,
       data.get("requiredStake"),
     ])
@@ -43,7 +43,7 @@ const Home: NextPage = () => {
     if (!form || !isConnected) return;
     const data = new FormData(form)
     
-    await wc.marketplace.execute("setMarketFeeRate", [
+    await wc.marketplaceStorage.execute("setMarketFeeRate", [
       wc.marketplaceId,
       data.get("marketFeeRate"),
     ])
@@ -56,7 +56,7 @@ const Home: NextPage = () => {
     if (!form || !isConnected) return;
     const data = new FormData(form)
     
-    await wc.marketplace.execute("setMarketFeeTo", [
+    await wc.marketplaceStorage.execute("setMarketFeeTo", [
       wc.marketplaceId,
       data.get("marketFeeTo"),
     ])

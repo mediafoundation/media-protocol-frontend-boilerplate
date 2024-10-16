@@ -1,4 +1,4 @@
-import { Sdk, MarketplaceViewer, Marketplace, Resources, MarketplaceHelper, validChains, ERC20, Quoter } from 'media-sdk';
+import { Sdk, MarketplaceViewer, Marketplace, MarketplaceStorage, Resources, MarketplaceHelper, validChains, ERC20, Quoter } from 'media-sdk';
 import { useEffect, useState } from "react"
 import { createWalletClient, custom } from "viem"
 import { sepolia } from 'wagmi/chains';
@@ -21,6 +21,7 @@ export function useMediaSDK({
       walletClient: null as any,
       publicClient: null as any,
       marketplace: null as any,
+      marketplaceStorage: null as any,
       marketplaceViewer: null as any,
       marketplaceHelper: null as any,
       resourcesContract: null as any,
@@ -29,17 +30,11 @@ export function useMediaSDK({
       erc20: null as any,
     }
     let currentChain
-    console.log("chain",chain)
-    console.log("validChains",validChains)
     if (chain && validChains.hasOwnProperty(chain.id)) {
       currentChain = chain
-      console.log("hay chain")
     } else {
       currentChain = sepolia
-      console.log("no hay chain")
     }
-    console.log("currentChain", currentChain)
-
     if (isConnected) {
       output.provider = window.ethereum as any
 
@@ -60,6 +55,7 @@ export function useMediaSDK({
 
     output.publicClient = sdkInstance.config.publicClient
     output.marketplace = new Marketplace(sdkInstance)
+    output.marketplaceStorage = new MarketplaceStorage(sdkInstance)
     output.marketplaceViewer = new MarketplaceViewer(sdkInstance)
     output.marketplaceHelper = new MarketplaceHelper(sdkInstance)
     output.resourcesContract = new Resources(sdkInstance)

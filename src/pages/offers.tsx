@@ -1,7 +1,7 @@
 import type { NextPage } from "next"
 import { useWalletContext } from "@contexts/WalletContext"
 import { useEffect } from "react"
-import { getShortName } from "@utils/utils"
+import { getShortName, sanitizeError } from "@utils/utils"
 import { useAccount } from "wagmi"
 
 import CreateOffer from "@components/CreateOffer"
@@ -11,6 +11,7 @@ import { useApproval } from "@hooks/useApproval"
 import { Encryption } from "media-sdk"
 import Link from "next/link"
 import LoadingButton from "@components/LoadingButton"
+import { toast } from "sonner"
 
 declare global {
   interface BigInt {
@@ -137,7 +138,8 @@ const Home: NextPage = () => {
                                   )
                                 }
                               }
-                              const tx =
+                              try {
+                                const tx =
                                 await wc.marketplaceHelper.swapAndCreateDealWithETH(
                                   {
                                     marketplaceId: wc.marketplaceId,
@@ -145,15 +147,26 @@ const Home: NextPage = () => {
                                     offerId: offer.id,
                                     sharedKeyCopy: encryptedSharedKey,
                                     minMediaAmountOut: 0,
-                                    amount: (25e14).toString(),
+                                    amount: data.get("amount") || (25e14).toString(),
                                   }
                                 )
-                              console.log(tx)
+                                console.log(tx)
+                              } catch (error: any) {
+                                toast.error(sanitizeError(error))
+                              }
+                              
                             }}
-                          >
+                            >
                             <input
                               type="text"
-                              className="field w-[7.25rem] mr-2"
+                              className="field w-[7.25rem]"
+                              name="amount"
+                              placeholder="Amount"
+                              defaultValue={(BigInt(offer.terms.minDealDuration * offer.terms.pricePerSecond) / BigInt(125)).toString()}
+                            />
+                            <input
+                              type="text"
+                              className="field w-[7.25rem]"
                               name="resourceId"
                               placeholder="Resource ID"
                             />

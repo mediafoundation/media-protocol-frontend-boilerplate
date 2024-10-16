@@ -49,10 +49,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       dispatchers.setOffers(result)
     },
     initMarket: async () => {
-      const hash = await sdk.marketplace.initializeMarketplace({
-        requiredStake: 100,
+      const hash = await sdk.marketplaceStorage.initializeMarketplace({
+        requiredStake: 100000,
         marketFeeTo: address,
-        marketFeeRate: 500,
+        marketFeeRate: 30000,
+        metadata: '{"name": "Test"}',
       })
       const transaction = await sdk.publicClient.waitForTransactionReceipt({
         hash: hash,
@@ -83,14 +84,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     },
     getMarketplaceData: async () => {
       //const result: any = await resources.view("getResources", [address]);
-      const marketFeeTo: any = await sdk.marketplace.view("marketFeeTo", [
+      const marketFeeTo: any = await sdk.marketplaceStorage.view("marketFeeTo", [
         state.marketplaceId,
       ])
-      const marketFeeRate: any = await sdk.marketplace.view(
+      const marketFeeRate: any = await sdk.marketplaceStorage.view(
         "marketFeeRate",
         [state.marketplaceId]
       )
-      const requiredStake: any = await sdk.marketplace.view(
+      const requiredStake: any = await sdk.marketplaceStorage.view(
         "REQUIRED_STAKE",
         [state.marketplaceId]
       )
@@ -100,7 +101,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       const offerCount: any = await sdk.marketplace.view("offerAutoIncrement", [
         state.marketplaceId,
       ])
-      const owner: any = await sdk.marketplace.view("owners", [
+      const owner: any = await sdk.marketplaceStorage.view("owners", [
         state.marketplaceId,
       ])
       const object = {
@@ -160,7 +161,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
           state.marketplaceId,
           metadata,
           state.encryptionPublicKey,
-          0,
+          [0,0],
           PATHS(state.currentChain).wethToMedia,
           50000, //slippage (50000 = 5%)
           500, // media-weth poolfee
