@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export function getShortName(str: string, dots = false, perSide = 3) {
   let len = str.length / 2
   return (
@@ -23,4 +25,12 @@ export function sanitizeError(e: any) {
 
   return e;
 
+}
+
+export const tryExecute = async (fn: (...args: any[]) => Promise<void>, ...args: any[]) => {
+  try {
+    await fn(...args)
+  } catch (error) {
+    toast.error(sanitizeError(error))
+  }
 }

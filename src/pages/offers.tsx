@@ -162,7 +162,7 @@ const Home: NextPage = () => {
                               className="field w-[7.25rem]"
                               name="amount"
                               placeholder="Amount"
-                              defaultValue={(BigInt(offer.terms.minDealDuration * offer.terms.pricePerSecond) / BigInt(125)).toString()}
+                              defaultValue={(BigInt(offer.terms.minDealDuration * offer.terms.pricePerSecond) / BigInt(50)).toString()}
                             />
                             <input
                               type="text"
@@ -170,7 +170,7 @@ const Home: NextPage = () => {
                               name="resourceId"
                               placeholder="Resource ID"
                             />
-                            <button className="btn">Take Offer</button>
+                            <button className="btn">Acquire Offer</button>
                           </form>
                         )}
                       </td>

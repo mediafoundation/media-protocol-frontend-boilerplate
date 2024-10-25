@@ -1,8 +1,12 @@
-import type { NextPage } from "next"
-import { useAccount } from "wagmi"
-import { useWalletContext } from "@contexts/WalletContext"
-import LoadingButton from "@components/LoadingButton"
-import { useRef } from "react"
+import type { NextPage } from "next";
+import { useAccount } from "wagmi";
+import { useWalletContext } from "@contexts/WalletContext";
+import LoadingButton from "@components/LoadingButton";
+import { useRef } from "react";
+import { toast } from "sonner";
+import { sanitizeError, tryExecute } from "@utils/utils";
+import { Loader } from "@components/Loader";
+import { PiProhibitDuotone } from "react-icons/pi";
 
 export function getStaticProps() {
   return {
@@ -10,70 +14,77 @@ export function getStaticProps() {
       title: "Media Protocol Front-End Example",
       isIndex: true,
     },
-  }
+  };
 }
 
 const Home: NextPage = () => {
-  const { isConnected, address } = useAccount()
-
-  const wc = useWalletContext()
+  const { isConnected, address } = useAccount();
+  const wc = useWalletContext();
+  const formRefs = {
+    requiredStake: useRef<HTMLFormElement>(null),
+    marketFeeRate: useRef<HTMLFormElement>(null),
+    marketFeeTo: useRef<HTMLFormElement>(null),
+    marketMetadata: useRef<HTMLFormElement>(null),
+  };
 
   const handleChange = (event: any) => {
-    const result = event.target.value.replace(/\D/g, "")
-    wc.setMarketplaceId(BigInt(result))
-  }
+    const result = event.target.value.replace(/\D/g, "");
+    wc.setMarketplaceId(BigInt(result));
+  };
 
-  const requiredStakeForm = useRef<HTMLFormElement>(null)
-
-  const setRequiredStake = async () => {
-    const form = requiredStakeForm.current;
+  const executeWithForm = async (
+    action: string,
+    formName: keyof typeof formRefs
+  ) => {
+    const form = formRefs[formName].current;
     if (!form || !isConnected) return;
-    const data = new FormData(form)
+    const data = new FormData(form);
 
-    await wc.marketplaceStorage.execute("setRequiredStake", [
-      wc.marketplaceId,
-      data.get("requiredStake"),
-    ])
-  }
+    try {
+      await wc.marketplaceStorage.execute(action, [
+        wc.marketplaceId,
+        data.get(formName),
+      ]);
+    } catch (error) {
+      toast.error(sanitizeError(error));
+    }
+  };
 
-  const marketFeeRateForm = useRef<HTMLFormElement>(null)
-
-  const setMarketFeeRate = async () => {
-    const form = marketFeeRateForm.current;
-    if (!form || !isConnected) return;
-    const data = new FormData(form)
-    
-    await wc.marketplaceStorage.execute("setMarketFeeRate", [
-      wc.marketplaceId,
-      data.get("marketFeeRate"),
-    ])
-  }
-
-  const marketFeeToForm = useRef<HTMLFormElement>(null)
-
-  const setMarketFeeTo = async () => {
-    const form = marketFeeToForm.current;
-    if (!form || !isConnected) return;
-    const data = new FormData(form)
-    
-    await wc.marketplaceStorage.execute("setMarketFeeTo", [
-      wc.marketplaceId,
-      data.get("marketFeeTo"),
-    ])
-  }
-
-  const marketMetadataForm = useRef<HTMLFormElement>(null)
-
-  const setMarketplaceMetadata = async () => {
-    const form = marketMetadataForm.current;
-    if (!form || !isConnected) return;
-    const data = new FormData(form)
-    
-    await wc.marketplaceStorage.execute("setMarketMetadata", [
-      wc.marketplaceId,
-      data.get("marketMetadata"),
-    ])
-  }
+  const renderMarketplaceForm = (
+    name: keyof typeof formRefs,
+    action: string,
+    value: any
+  ) => (
+    <form ref={formRefs[name]}>
+      <input
+        className="field mr-2"
+        name={name}
+        type="text"
+        value={String(value)}
+        onChange={(e) =>
+          wc.setMarketplaceData({
+            ...wc.marketplaceData,
+            [name]:
+              name === "requiredStake"
+                ? BigInt(e.target.value)
+                : e.target.value,
+          })
+        }
+      />
+      {isConnected && address === wc.marketplaceData.owner && (
+        <LoadingButton
+          type="submit"
+          className="btn"
+          onClick={async (event: React.MouseEvent<HTMLButtonElement>) => {
+            event.preventDefault();
+            await executeWithForm(action, name);
+          }}
+        >
+          Submit
+        </LoadingButton>
+      )}
+    </form>
+  );
 
   return (
     <>
@@ -86,7 +97,12 @@ const Home: NextPage = () => {
       <h1>Select a Marketplace</h1>
       <div className="flex gap-2 my-4">
         {isConnected && (
-          <LoadingButton className="btn" onClick={wc.initMarket}>
+          <LoadingButton
+            className="btn"
+            onClick={async () => {
+              await tryExecute(wc.initMarket);
+            }}
+          >
             Init New Marketplace
           </LoadingButton>
         )}
@@ -100,144 +116,79 @@ const Home: NextPage = () => {
           />
         </div>
       </div>
-      {wc.marketplaceData && (
-        <div className="mt-4 border border-dark-1500 rounded-xl px-5">
-          <h1 className="mt-6 pb-3 border-b border-dark-1500">Marketplace Data</h1>
-          <ul className="divide-y divide-dark-1500 [&_li]:py-3 ">
-            <li>Market ID: {String(wc.marketplaceId)}</li>
-            <li>Market Fee To:
-              <form ref={marketFeeToForm}>
-                <input
-                  className="field mr-2"
-                  type="text"
-                  name="marketFeeTo"
-                  value={wc.marketplaceData.marketFeeTo}
-                  onChange={(e) => {
-                    wc.setMarketplaceData({
-                      ...wc.marketplaceData,
-                      marketFeeTo: e.target.value,
-                    })
-                  }}
-                />
-                {isConnected && address == wc.marketplaceData.owner && (<>
-                  <LoadingButton 
-                    type="submit" 
-                    className="btn" 
-                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
-                      event.preventDefault();
-                      await setMarketFeeTo();
-                    }}
-                  >
-                    Submit
-                  </LoadingButton>
-                </>)}
-              </form>            
-            </li>
-            <li>
-              Market Fee Rate: <small>From 100 (0.01%) to 100000 (10%)</small>
-              <form ref={marketFeeRateForm}>
-                <input
-                  className="field mr-2"
-                  type="text"
-                  name="marketFeeRate"
-                  value={String(wc.marketplaceData.marketFeeRate)}
-                  onChange={(e) => {
-                    wc.setMarketplaceData({
-                      ...wc.marketplaceData,
-                      marketFeeRate: e.target.value,
-                    })
-                  }}
-                />
-                {isConnected && address == wc.marketplaceData.owner && (<>
-                  <LoadingButton 
-                    type="submit" 
-                    className="btn" 
-                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
-                      event.preventDefault();
-                      await setMarketFeeRate();
-                    }}
-                  >
-                    Submit
-                  </LoadingButton>
-                </>)}
-              </form>
-            </li>
-            <li>
-              Required Stake:{" "}
-              <form ref={requiredStakeForm}>
-                <input
-                  className="field mr-2"
-                  name="requiredStake"
-                  type="text"
-                  value={String(wc.marketplaceData.requiredStake)}
-                  onChange={(e) => {
-                    wc.setMarketplaceData({
-                      ...wc.marketplaceData,
-                      requiredStake: BigInt(e.target.value),
-                    })
-                  }}
-                />
-                {isConnected && address == wc.marketplaceData.owner && (<>
-                  <LoadingButton 
-                    type="submit" 
-                    className="btn" 
-                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
-                      event.preventDefault();
-                      await setRequiredStake();
-                    }}
-                  >
-                    Submit
-                  </LoadingButton>
-                </>)}
-              </form>
-            </li>
-            <li>
-              Market Metadata:{" "}
-              <form ref={marketMetadataForm}>
-                <input
-                  className="field mr-2"
-                  name="marketMetadata"
-                  type="text"
-                  value={String(wc.marketplaceData.marketMetadata)}
-                  onChange={(e) => {
-                    wc.setMarketplaceData({
-                      ...wc.marketplaceData,
-                      marketMetadata: e.target.value,
-                    })
-                  }}
-                />
-                {isConnected && address == wc.marketplaceData.owner && (<>
-                  <LoadingButton 
-                    type="submit" 
-                    className="btn" 
-                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
-                      event.preventDefault();
-                      await setMarketplaceMetadata();
-                    }}
-                  >
-                    Submit
-                  </LoadingButton>
-                </>)}
-              </form>
-            </li>
-            <li>Deal Count: {String(wc.marketplaceData.dealCount)}</li>
-            <li>Offer Count: {String(wc.marketplaceData.offerCount)}</li>
-          </ul>
-        </div>
-      )}
-      <hr className="border-dark-1500 my-6" />
       {wc.marketplaceId && (
-        <div className="flex gap-2">
-          <LoadingButton onClick={wc.getMarketplaceData} className="btn">
-            Reload
-          </LoadingButton>
-          <LoadingButton onClick={wc.resetMarketplaceData} className="btn">
-            Reset
-          </LoadingButton>
-        </div>
+        <>
+          <div className="mt-4 border border-dark-1500 rounded-xl p-6">
+            {wc.marketplaceData ? (
+              wc.marketplaceData.marketFeeRate != 0 ? (
+                <>
+                  <h1 className="pb-3 border-b border-dark-1500">
+                    Marketplace Data
+                  </h1>
+                  <ul className="divide-y divide-dark-1500 [&_li]:py-3 ">
+                    <li>Marketplace ID: {String(wc.marketplaceId)}</li>
+                    <li>Deal Count: {String(wc.marketplaceData.dealCount)}</li>
+                    <li>
+                      Offer Count: {String(wc.marketplaceData.offerCount)}
+                    </li>
+                    <li>
+                      Market Fee To:{" "}
+                      {renderMarketplaceForm(
+                        "marketFeeTo",
+                        "setMarketFeeTo",
+                        wc.marketplaceData.marketFeeTo
+                      )}
+                    </li>
+                    <li>
+                      Market Fee Rate:{" "}
+                      <small>From 100 (0.01%) to 100000 (10%)</small>
+                      {renderMarketplaceForm(
+                        "marketFeeRate",
+                        "setMarketFeeRate",
+                        wc.marketplaceData.marketFeeRate
+                      )}
+                    </li>
+                    <li>
+                      Required Stake:{" "}
+                      {renderMarketplaceForm(
+                        "requiredStake",
+                        "setRequiredStake",
+                        wc.marketplaceData.requiredStake
+                      )}
+                    </li>
+                    <li>
+                      Market Metadata:{" "}
+                      {renderMarketplaceForm(
+                        "marketMetadata",
+                        "setMarketMetadata",
+                        wc.marketplaceData.marketMetadata
+                      )}
+                    </li>
+                  </ul>
+                </>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <PiProhibitDuotone className="text-xl" />{" "}
+                  <span className="textMuted">Marketplace not found</span>
+                </div>
+              )
+            ) : (
+              <div className="flex items-center gap-2">
+                <Loader />{" "}
+                <span className="textMuted">Loading Marketplace Data</span>
+              </div>
+            )}
+          </div>
+          <hr className="border-dark-1500 my-6" />
+          <div className="flex gap-2">
+            <LoadingButton onClick={wc.getMarketplaceData} className="btn">
+              Reload
+            </LoadingButton>
+          </div>
+        </>
       )}
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
