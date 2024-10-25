@@ -62,6 +62,19 @@ const Home: NextPage = () => {
     ])
   }
 
+  const marketMetadataForm = useRef<HTMLFormElement>(null)
+
+  const setMarketplaceMetadata = async () => {
+    const form = marketMetadataForm.current;
+    if (!form || !isConnected) return;
+    const data = new FormData(form)
+    
+    await wc.marketplaceStorage.execute("setMarketMetadata", [
+      wc.marketplaceId,
+      data.get("marketMetadata"),
+    ])
+  }
+
   return (
     <>
       <h1>Media Protocol Front-End Example</h1>
@@ -171,6 +184,35 @@ const Home: NextPage = () => {
                     onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
                       event.preventDefault();
                       await setRequiredStake();
+                    }}
+                  >
+                    Submit
+                  </LoadingButton>
+                </>)}
+              </form>
+            </li>
+            <li>
+              Market Metadata:{" "}
+              <form ref={marketMetadataForm}>
+                <input
+                  className="field mr-2"
+                  name="marketMetadata"
+                  type="text"
+                  value={String(wc.marketplaceData.marketMetadata)}
+                  onChange={(e) => {
+                    wc.setMarketplaceData({
+                      ...wc.marketplaceData,
+                      marketMetadata: e.target.value,
+                    })
+                  }}
+                />
+                {isConnected && address == wc.marketplaceData.owner && (<>
+                  <LoadingButton 
+                    type="submit" 
+                    className="btn" 
+                    onClick={async(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault();
+                      await setMarketplaceMetadata();
                     }}
                   >
                     Submit

@@ -104,6 +104,9 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
       const owner: any = await sdk.marketplaceStorage.view("owners", [
         state.marketplaceId,
       ])
+      const marketMetadata: any = await sdk.marketplaceStorage.view("marketMetadata", [
+        state.marketplaceId,
+      ])
       const object = {
         marketFeeTo,
         marketFeeRate,
@@ -111,6 +114,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         dealCount,
         offerCount,
         owner,
+        marketMetadata,
       }
       dispatchers.setMarketplaceData(object)
     },
